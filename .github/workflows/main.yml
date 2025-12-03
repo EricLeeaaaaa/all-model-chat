@@ -1,0 +1,48 @@
+name: Sync Subdirectory from Upstream
+
+on:
+  # 在 Actions 页面触发此工作流
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination repository
+        uses: actions/checkout@v4
+
+      # 将源仓库克隆到 'temp_source' 文件夹中，以避免与当前仓库冲突
+      - name: Clone source repository
+        run: git clone https://github.com/yeahhe365/All-Model-Chat.git temp_source
+
+      # 使用 rsync 来高效地同步文件
+      - name: Sync subdirectory to root
+        run: |
+          # -a: 归档模式，保留文件属性
+          # -v: 显示详细过程
+          # --delete: 删除目标目录中存在但源目录中不存在的文件，确保完全同步
+          # 'temp_source/all-model-chat/' 复制目录内容
+          rsync -av --delete temp_source/all-model-chat/ ./
+          
+          # 清理临时克隆的仓库
+          rm -rf temp_source
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 检查是否有文件变更。如果没有，则退出，避免创建空的 commit
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          
+          # 添加所有变更到暂存区
+          git add .
+          
+          # 创建 commit
+          git commit -m "Sync latest code"
+          
+          # 推送到远程仓库
+          git push
