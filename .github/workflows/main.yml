@@ -1,7 +1,6 @@
 name: Sync Subdirectory from Upstream
 
 on:
-  # 在 Actions 页面触发此工作流
   workflow_dispatch:
 
 jobs:
@@ -13,13 +12,23 @@ jobs:
       - name: Checkout destination repository
         uses: actions/checkout@v4
 
-      # 将源仓库克隆到 'temp_source' 文件夹中，以避免与当前仓库冲突
       - name: Clone source repository
-        run: git clone https://github.com/yeahhe365/All-Model-Chat.git temp_source
+        run: git clone --depth=1 https://github.com/yeahhe365/All-Model-Chat.git temp_source
 
-      # 使用 rsync 同步文件
+      # 获取上游仓库的 commit hash
+      - name: Get upstream commit hash
+        id: upstream
+        run: echo "hash=$(git -C temp_source rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # 检查目录，并执行同步
       - name: Sync subdirectory to root
         run: |
+          # 检查源目录是否存在，如果不存在则优雅退出
+          if [ ! -d "temp_source/all-model-chat" ]; then
+            echo "Source directory 'temp_source/all-model-chat' not found. Skipping sync."
+            exit 0
+          fi
+          
           rsync -av --delete --exclude 'temp_source' --exclude '.github' --exclude '.git' temp_source/all-model-chat/ ./          
           rm -rf temp_source
 
@@ -28,17 +37,13 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # 检查是否有文件变更。如果没有，则退出，避免创建空的 commit
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to commit."
             exit 0
           fi
           
-          # 添加所有变更到暂存区
           git add .
           
-          # 创建 commit
-          git commit -m "Sync latest code"
+          git commit -m "Sync from upstream @ ${{ steps.upstream.outputs.hash }}"
           
-          # 推送到远程仓库
           git push
