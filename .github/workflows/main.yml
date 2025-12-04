@@ -18,7 +18,7 @@ jobs:
       # 使用 rsync 同步文件
       - name: Sync subdirectory to root
         run: |
-          rsync -av --delete --exclude 'temp_source' --exclude '.github' temp_source/all-model-chat/ ./          
+          rsync -av --delete --exclude 'temp_source' --exclude '.github' --exclude '.git' temp_source/all-model-chat/ ./          
           rm -rf temp_source
 
       - name: Commit and push changes
