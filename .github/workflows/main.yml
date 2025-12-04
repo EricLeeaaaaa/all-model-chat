@@ -15,16 +15,10 @@ jobs:
       - name: Clone source repository
         run: git clone https://github.com/yeahhe365/All-Model-Chat.git temp_source
 
-      # 使用 rsync 来高效地同步文件
+      # 使用 rsync 同步文件
       - name: Sync subdirectory to root
         run: |
-          # -a: 归档模式，保留文件属性
-          # -v: 显示详细过程
-          # --delete: 删除目标目录中存在但源目录中不存在的文件，确保完全同步
-          # 'temp_source/all-model-chat/' 复制目录内容
-          rsync -av --delete temp_source/all-model-chat/ ./
-          
-          # 清理临时克隆的仓库
+          rsync -av --delete --exclude 'temp_source' --exclude '.github' temp_source/all-model-chat/ ./          
           rm -rf temp_source
 
       - name: Commit and push changes
