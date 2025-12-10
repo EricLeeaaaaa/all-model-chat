@@ -27,8 +27,18 @@ const App: React.FC = () => {
 
   // Update Interceptor Configuration when settings change
   useEffect(() => {
-      const shouldUseProxy = appSettings.useCustomApiConfig && appSettings.useApiProxy;
-      networkInterceptor.configure(!!shouldUseProxy, appSettings.apiProxyUrl);
+      let proxyUrl: string | null = appSettings.apiProxyUrl;
+      let enabled = false;
+
+      if (appSettings.useCustomApiConfig && appSettings.useApiProxy) {
+          enabled = true;
+      } else if (process.env?.API_BASE_URL) {
+          proxyUrl = process.env.API_BASE_URL;
+          enabled = true;
+          console.log(`[NetworkInterceptor] Using ENV API_BASE_URL as proxy: ${proxyUrl}`);
+      }
+
+      networkInterceptor.configure(enabled, proxyUrl);
   }, [appSettings.useCustomApiConfig, appSettings.useApiProxy, appSettings.apiProxyUrl]);
 
   const chatState = useChat(appSettings, setAppSettings, language);
