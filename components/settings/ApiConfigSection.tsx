@@ -49,9 +49,10 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   };
 
   const hasEnvKey = !!process.env.API_KEY;
+  const hasEnvBaseUrl = !!process.env.API_BASE_URL;
 
   // Calculate preview URL
-  const defaultBaseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+  const defaultBaseUrl = process.env.API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta';
   const defaultProxyUrl = 'https://api-proxy.de/gemini/v1beta';
   const currentBaseUrl = apiProxyUrl?.trim() || defaultBaseUrl;
   const cleanBaseUrl = currentBaseUrl.replace(/\/+$/, '');
@@ -149,16 +150,16 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
             <div className="flex flex-col flex-grow cursor-pointer" onClick={() => setUseCustomApiConfig(!useCustomApiConfig)}>
                 <span className="text-sm font-medium text-[var(--theme-text-primary)] flex items-center gap-2">
                   {t('settingsUseCustomApi')}
-                  {hasEnvKey && !useCustomApiConfig && (
+                  {(hasEnvKey || hasEnvBaseUrl) && !useCustomApiConfig && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-500/10 text-green-600 border border-green-500/20">
-                          <ShieldCheck size={10} /> Env Key Active
+                          <ShieldCheck size={10} /> Env Config Active
                       </span>
                   )}
                 </span>
                 <span className="text-xs text-[var(--theme-text-tertiary)] mt-0.5">
-                    {useCustomApiConfig 
+                    {useCustomApiConfig
                         ? (hasEnvKey ? 'Overriding environment API key' : 'Using your own API keys')
-                        : (hasEnvKey ? t('apiConfig_default_info') : 'No API key found in environment. Enable custom key to proceed.')
+                        : ((hasEnvKey || hasEnvBaseUrl) ? t('apiConfig_default_info') : 'No API key found in environment. Enable custom key to proceed.')
                     }
                 </span>
             </div>

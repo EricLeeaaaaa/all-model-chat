@@ -29,11 +29,15 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
       
       const config: any = { apiKey: sanitizedApiKey };
       
+      if (!baseUrl && process.env?.API_BASE_URL) {
+        baseUrl = process.env.API_BASE_URL;
+      }
+
       // Use the SDK's native baseUrl support if provided.
       // This is more robust than the network interceptor for SDK-generated requests.
       if (baseUrl && baseUrl.trim().length > 0) {
-          // Remove trailing slash for consistency
-          config.baseUrl = baseUrl.trim().replace(/\/$/, '');
+        // Remove trailing slash for consistency
+        config.baseUrl = baseUrl.trim().replace(/\/$/, '');
       }
       
       return new GoogleGenAI(config);
