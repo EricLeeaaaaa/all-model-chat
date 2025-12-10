@@ -32,7 +32,13 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
       if (!baseUrl && process.env?.API_BASE_URL) {
         baseUrl = process.env.API_BASE_URL;
       }
-
+  
+      console.log('[DEBUG] getClient:', {
+        input_baseUrl: baseUrl,
+        env_API_BASE_URL: process.env?.API_BASE_URL || null,
+        final_config_baseUrl: baseUrl ? baseUrl.trim().replace(/\/$/, '') : 'DEFAULT (Google)'
+      });
+  
       // Use the SDK's native baseUrl support if provided.
       // This is more robust than the network interceptor for SDK-generated requests.
       if (baseUrl && baseUrl.trim().length > 0) {
@@ -68,6 +74,16 @@ export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenA
     // Explicitly check for truthiness to handle undefined/null
     const shouldUseProxy = !!(settings?.useCustomApiConfig && settings?.useApiProxy);
     const apiProxyUrl = shouldUseProxy ? settings?.apiProxyUrl : null;
+    
+    console.log('[DEBUG] getConfiguredApiClient:', {
+        apiKey: apiKey ? '***' : null,
+        settings_useCustom: settings?.useCustomApiConfig,
+        settings_useProxy: settings?.useApiProxy,
+        settings_proxyUrl: settings?.apiProxyUrl || null,
+        shouldUseProxy,
+        finalProxyUrl: apiProxyUrl,
+        env_BASE_URL: process.env?.API_BASE_URL || null
+    });
     
     if (settings?.useCustomApiConfig && !shouldUseProxy) {
         // Debugging aid: if user expects proxy but it's not active
