@@ -31,7 +31,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   t,
 }) => {
   const [isApiKeyFocused, setIsApiKeyFocused] = useState(false);
-  
+
   // Test connection state
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState<string | null>(null);
@@ -48,26 +48,45 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
     return 'e.g., https://api-proxy.de/gemini/v1beta';
   };
 
-  const hasEnvKey = !!process.env.API_KEY;
-  const hasEnvBaseUrl = !!process.env.API_BASE_URL;
+  // Environment variable detection
+  const envApiKey = process.env.GEMINI_API_KEY;
+  const envBaseUrl = process.env.GEMINI_API_BASE_URL;
+  const hasEnvKey = !!envApiKey;
+  const hasEnvBaseUrl = !!envBaseUrl;
 
-  // Calculate preview URL
-  const defaultBaseUrl = process.env.API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta';
-  const defaultProxyUrl = 'https://api-proxy.de/gemini/v1beta';
-  const currentBaseUrl = apiProxyUrl?.trim() || defaultBaseUrl;
-  const cleanBaseUrl = currentBaseUrl.replace(/\/+$/, '');
-  const previewUrl = `${cleanBaseUrl}/models/gemini-2.5-flash:generateContent`;
+  // Calculate current active Base URL and its source
+  let activeBaseUrlDisplay = 'https://generativelanguage.googleapis.com';
+  let activeSource = 'Default (Google)';
+
+  if (useCustomApiConfig && useApiProxy && apiProxyUrl) {
+      activeBaseUrlDisplay = apiProxyUrl;
+      activeSource = 'Custom Settings';
+  } else if (envBaseUrl) {
+      activeBaseUrlDisplay = envBaseUrl;
+      activeSource = 'Environment Variable';
+  }
+
+  // Calculate preview URL - show what the API request path would look like
+  let cleanBaseUrlForPreview = activeBaseUrlDisplay.replace(/\/+$/, '');
+  let previewUrl;
+  // If the URL already includes an API path like /v1beta, /v1, or /v2, don't add /v1beta again
+  if (!cleanBaseUrlForPreview.includes('/v1beta') && !cleanBaseUrlForPreview.includes('/v1') && !cleanBaseUrlForPreview.includes('/v2')) {
+      previewUrl = `${cleanBaseUrlForPreview}/v1beta/models/gemini-2.5-flash:generateContent`;
+  } else {
+      // If it already has an API path, just append the model endpoint
+      previewUrl = `${cleanBaseUrlForPreview}/models/gemini-2.5-flash:generateContent`;
+  }
 
   const handleTestConnection = async () => {
       // Pick the key that would be used
       let keyToTest = apiKey;
-      
+
       // If custom config is OFF, or ON but no key provided, we might fall back to env key if available.
       // But for explicit testing, if custom config is ON, we should test what's in the box.
       if (!useCustomApiConfig && hasEnvKey) {
-          keyToTest = process.env.API_KEY || null;
+          keyToTest = envApiKey || null;
       }
-      
+
       if (useCustomApiConfig && !keyToTest) {
           setTestStatus('error');
           setTestMessage("No API Key provided to test.");
@@ -83,14 +102,15 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
       // Handle multiple keys - pick first for test
       const keys = parseApiKeys(keyToTest);
       const firstKey = keys[0];
-      
+
       if (!firstKey) {
           setTestStatus('error');
           setTestMessage("Invalid API Key format.");
           return;
       }
 
-      const effectiveUrl = (useCustomApiConfig && useApiProxy && apiProxyUrl) ? apiProxyUrl : null;
+      // This effectiveUrl logic should match the logic in baseApi.ts
+      const effectiveUrl = (useCustomApiConfig && useApiProxy && apiProxyUrl) ? apiProxyUrl : envBaseUrl;
 
       setTestStatus('testing');
       setTestMessage(null);
@@ -98,7 +118,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
       try {
           // Use the base API helper to get a client with sanitation logic
           const ai = getClient(firstKey, effectiveUrl);
-          
+
           // Using gemini-2.5-flash for a quick, cheap test
           await ai.models.generateContent({
               model: 'gemini-2.5-flash',
@@ -123,7 +143,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   const handleSetVertexExpress = () => {
       if (isVertexExpressActive) {
           setUseApiProxy(false);
-          setApiModelsUrl(defaultBaseUrl);
+          setApiModelsUrl(envBaseUrl || 'https://generativelanguage.googleapis.com');
       } else {
           setUseApiProxy(true);
           setApiModelsUrl(VERTEX_URL);
@@ -131,7 +151,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   };
 
   const handleResetProxy = () => {
-      setApiProxyUrl(defaultProxyUrl);
+      setApiProxyUrl('https://api-proxy.de/gemini/v1beta');
       setTestStatus('idle');
   };
 
@@ -216,8 +236,8 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                                 type="button"
                                 onClick={handleSetVertexExpress}
                                 className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors border ${
-                                    isVertexExpressActive 
-                                        ? 'bg-[var(--theme-bg-accent)] text-[var(--theme-text-accent)] border-transparent' 
+                                    isVertexExpressActive
+                                        ? 'bg-[var(--theme-bg-accent)] text-[var(--theme-text-accent)] border-transparent'
                                         : 'text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] border-transparent hover:border-[var(--theme-border-secondary)]'
                                 }`}
                                 title={t('apiConfig_vertexExpress')}
@@ -244,7 +264,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                           }}
                         />
                     </div>
-                    
+
                     <div className={`transition-all duration-200 ${useApiProxy ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                         <input
                             id="api-proxy-url-input"
@@ -255,8 +275,13 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                             placeholder={getProxyPlaceholder()}
                             aria-label="API Proxy URL"
                         />
-                        
-                        <div className="mt-3 p-3 rounded-lg bg-[var(--theme-bg-tertiary)]/30 border border-[var(--theme-border-secondary)]">
+
+                        {/* Display active Base URL source */}
+                        <div className="mt-3 p-3 rounded-lg bg-[var(--theme-bg-secondary)]/50 border border-[var(--theme-border-secondary)]">
+                            <div className="text-xs text-[var(--theme-text-tertiary)] mb-1.5 flex items-center gap-2">
+                                <Info size={12} strokeWidth={1.5} />
+                                <span className="font-medium">Active Endpoint Source: <span className="font-mono font-semibold text-[var(--theme-text-secondary)]">{activeSource}</span></span>
+                            </div>
                             <div className="flex gap-2 text-xs text-[var(--theme-text-tertiary)] mb-1.5">
                                 <AlertCircle size={14} className="flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                                 <span>Preview of actual request URL:</span>
@@ -278,7 +303,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                         onClick={handleTestConnection}
                         disabled={testStatus === 'testing' || (!apiKey && useCustomApiConfig)}
                         className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all ${
-                            testStatus === 'testing' 
+                            testStatus === 'testing'
                                 ? 'bg-[var(--theme-bg-tertiary)] border-transparent cursor-wait'
                                 : 'bg-transparent border-[var(--theme-border-secondary)] hover:bg-[var(--theme-bg-tertiary)] hover:border-[var(--theme-border-focus)] text-[var(--theme-text-primary)]'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
