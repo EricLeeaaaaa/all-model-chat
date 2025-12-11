@@ -42,11 +42,11 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
         }
       });
 
-      // Use the SDK's native baseUrl support if provided.
+      // Use the SDK's native baseURL support if provided.
       // This is more robust than the network interceptor for SDK-generated requests.
       if (baseUrl && baseUrl.trim().length > 0) {
         // Remove trailing slash for consistency
-        config.baseUrl = baseUrl.trim().replace(/\/$/, '');
+        config.baseURL = baseUrl.trim().replace(/\/$/, '');
       }
       
       return new GoogleGenAI(config);
