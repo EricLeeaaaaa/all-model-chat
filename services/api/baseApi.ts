@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI, GoogleGenAIOptions, Modality } from "@google/genai";
 import { logService } from "../logService";
 import { dbService } from '../../utils/db';
 import { GEMINI_3_RO_MODELS } from "../../constants/modelConstants";
@@ -34,46 +34,42 @@ const normalizeUrl = (url: string | null | undefined): string | null => {
 };
 
 /**
- * Get base SDK client with proper Base URL handling
+ * Get base SDK client with proper Base URL handling via httpOptions
  * @param apiKey - API key for authentication
- * @param specificBaseUrl - (optional) Specific Base URL to use, typically passed from getConfiguredApiClient
+ * @param specificBaseUrl - (optional) Specific Base URL to use
  */
 export const getClient = (apiKey: string, specificBaseUrl?: string | null): GoogleGenAI => {
     try {
-        // Sanitize the API key to replace common non-ASCII characters that might
-        // be introduced by copy-pasting from rich text editors. This prevents
-        // "Failed to execute 'append' on 'Headers': Invalid character" errors.
+        // Sanitize API Key
         const sanitizedApiKey = apiKey
-            .replace(/[\u2013\u2014]/g, '-') // en-dash, em-dash to hyphen
-            .replace(/[\u2018\u2019]/g, "'") // smart single quotes to apostrophe
-            .replace(/[\u201C\u201D]/g, '"') // smart double quotes to quote
-            .replace(/[\u00A0]/g, ' '); // non-breaking space to regular space
+            .replace(/[\u2013\u2014]/g, '-')
+            .replace(/[\u2018\u2019]/g, "'")
+            .replace(/[\u201C\u201D]/g, '"')
+            .replace(/[\u00A0]/g, ' ');
 
         if (apiKey !== sanitizedApiKey) {
             logService.warn("API key sanitized: non-ASCII characters removed.");
         }
 
-        const clientConfig: any = { apiKey: sanitizedApiKey };
+        // Construct Configuration strictly according to GoogleGenAIOptions interface
+        const clientConfig: GoogleGenAIOptions = {
+            apiKey: sanitizedApiKey
+        };
 
-        // Determine effective Base URL following priority logic:
-        // 1. If specificBaseUrl (from config) is provided, use it
-        // 2. Otherwise, fallback to environment variable
-        // 3. If neither is provided, SDK will use official default (no baseUrl needed)
-        const envBaseUrl = normalizeUrl(process.env.GEMINI_API_BASE_URL);
-        const effectiveBaseUrl = specificBaseUrl ? normalizeUrl(specificBaseUrl) : envBaseUrl;
-
-        // Only set baseUrl parameter if we have a custom URL (not the default Google endpoint)
-        // GoogleGenAI SDK will automatically handle /v1beta and other paths internally
-        if (effectiveBaseUrl && !effectiveBaseUrl.includes('generativelanguage.googleapis.com')) {
-            clientConfig.baseUrl = effectiveBaseUrl;
+        // Configure Base URL via httpOptions if provided
+        // This overrides the default AI platform service endpoint
+        if (specificBaseUrl) {
+            clientConfig.httpOptions = {
+                baseUrl: specificBaseUrl,
+                // apiVersion can be added here if needed, e.g., 'v1beta'
+            };
         }
 
-        // Log the decision for debugging
-        if (import.meta.env.DEV) {
+        // Log configuration in Dev mode (masking key)
+        if (process.env.NODE_ENV === 'development') {
             console.log('[API Init]', {
-                apiKey: '***',
-                baseUrl: clientConfig.baseUrl || 'DEFAULT (Official)',
-                source: specificBaseUrl ? 'AppConfig' : (envBaseUrl ? 'EnvVar' : 'Default')
+                hasKey: !!sanitizedApiKey,
+                baseUrl: clientConfig.httpOptions?.baseUrl || 'DEFAULT (Official Google)',
             });
         }
 
@@ -85,37 +81,41 @@ export const getClient = (apiKey: string, specificBaseUrl?: string | null): Goog
 };
 
 /**
- * Core method: Get API client configured with complete settings (database settings + environment variables)
- * This is the entry point that all requests in the app should use
+ * Core method: Get API client configured with strict separation logic
+ * Logic:
+ * 1. Custom Config ON: Use DB Settings (Key & Proxy). NO Env fallback.
+ * 2. Custom Config OFF: Use Env Vars (Key & BaseURL).
  */
 export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenAI> => {
-    // 1. Read user settings from database
+    // 1. Read user settings
     const settings = await dbService.getAppSettings();
-
-    // 2. Determine Base URL following priority logic:
-    // Priority 1: User has enabled Custom Config + Use Proxy and provided a URL in settings
-    const isCustomProxyEnabled = settings?.useCustomApiConfig && settings?.useApiProxy;
-    const customProxyUrl = isCustomProxyEnabled ? settings?.apiProxyUrl : null;
-
-    // Priority 2: Environment variable (process.env.GEMINI_API_BASE_URL)
-    // Priority 3: null (let SDK use default value)
-
-    // normalizeUrl will handle null values safely
-    const envBaseUrl = process.env.GEMINI_API_BASE_URL;
-
+    
     let resolvedBaseUrl: string | null = null;
 
-    if (customProxyUrl && customProxyUrl.trim() !== '') {
-        resolvedBaseUrl = customProxyUrl;
-        logService.debug('[API Config] Using Custom Proxy URL from Settings.');
-    } else if (envBaseUrl && envBaseUrl.trim() !== '') {
-        resolvedBaseUrl = envBaseUrl;
-        logService.debug('[API Config] Using Base URL from Environment Variables.');
+    // 2. Determine Base URL based on strict separation logic
+    if (settings?.useCustomApiConfig) {
+        // --- Mode: Custom Configuration ---
+        // If "Use API Proxy" is checked in UI, use that URL. Otherwise default.
+        if (settings.useApiProxy && settings.apiProxyUrl) {
+            resolvedBaseUrl = normalizeUrl(settings.apiProxyUrl);
+            logService.debug('[API Config] Using Custom Proxy URL from Settings.');
+        } else {
+            logService.debug('[API Config] Custom Config ON, but Proxy OFF. Using Default Google Endpoint.');
+        }
     } else {
-        logService.debug('[API Config] Using Default Google Endpoint.');
+        // --- Mode: Environment Configuration ---
+        // Use environment variable if available.
+        const envBaseUrl = normalizeUrl(process.env.GEMINI_API_BASE_URL);
+        if (envBaseUrl) {
+            resolvedBaseUrl = envBaseUrl;
+            logService.debug('[API Config] Using Base URL from Environment Variables.');
+        } else {
+            logService.debug('[API Config] Env Config ON, but no Base URL var. Using Default Google Endpoint.');
+        }
     }
 
     // 3. Instantiate client
+    // Note: The apiKey passed here is already selected by utils/apiUtils.ts based on the same logic
     return getClient(apiKey, resolvedBaseUrl);
 };
 

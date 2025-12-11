@@ -4,11 +4,16 @@ import { API_KEY_LAST_USED_INDEX_KEY } from '../constants/appConstants';
 import { logService } from '../services/logService';
 
 export const getActiveApiConfig = (appSettings: AppSettings): { apiKeysString: string | null } => {
+    // Strict separation logic:
     if (appSettings.useCustomApiConfig) {
+        // If custom config is enabled, ONLY use the key from settings.
+        // Do NOT fallback to environment variable.
         return {
-            apiKeysString: appSettings.apiKey,
+            apiKeysString: appSettings.apiKey || null,
         };
     }
+    
+    // If custom config is disabled, ONLY use the environment variable.
     return {
         apiKeysString: process.env.GEMINI_API_KEY || null,
     };
@@ -40,8 +45,14 @@ export const getKeyForRequest = (
     };
 
     const { apiKeysString } = getActiveApiConfig(appSettings);
+    
     if (!apiKeysString) {
-        return { error: "API Key not configured." };
+        // Provide specific error messages based on mode
+        if (appSettings.useCustomApiConfig) {
+            return { error: "Custom API Config is enabled, but no API Key provided in settings." };
+        } else {
+            return { error: "No API Key found in environment variables." };
+        }
     }
 
     const availableKeys = parseApiKeys(apiKeysString);
