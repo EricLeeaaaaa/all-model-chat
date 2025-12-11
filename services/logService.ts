@@ -230,6 +230,7 @@ class LogServiceImpl {
   }
 
   public debug(message: string, options?: { category?: LogCategory, data?: any } | any) {
+    if (import.meta.env.PROD) return;
     const category = options?.category || 'SYSTEM';
     const data = options?.category ? options.data : options;
     this.queueLog(this.createLogEntry('DEBUG', category, message, data));

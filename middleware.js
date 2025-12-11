@@ -32,11 +32,14 @@ export default async function middleware(request) {
     }
   }
 
-  // 静态资源、login.html 直接放行
-  const isStaticAsset = /\.\w+$/.test(pathname) || pathname === '/favicon.ico' || pathname === '/robots.txt';
-  const isLoginPage = pathname === '/login.html';
-
-  if (isStaticAsset || isLoginPage) {
+  // 白名单路径直接放行 (无需密码)
+  const publicPaths = [
+    '/login.html',
+    '/favicon.ico',
+    '/robots.txt',
+    '/manifest.json'
+  ];
+  if (publicPaths.includes(pathname)) {
     return fetch(request);
   }
 
@@ -68,6 +71,11 @@ export default async function middleware(request) {
     return fetch(request);
   }
 
-  // 未授权，重定向到登录页
-  return Response.redirect(new URL('/login.html', request.url), 302);
+  // 未授权，区分请求类型返回合适的响应
+  const acceptHeader = request.headers.get('Accept') || '';
+  if (acceptHeader.includes('text/html')) {
+    return Response.redirect(new URL('/login.html', request.url), 302);
+  }
+  // 资源请求返回 401
+  return new Response('Unauthorized Access to Static Asset', { status: 401 });
 }

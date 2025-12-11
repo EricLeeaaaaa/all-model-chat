@@ -14,32 +14,11 @@ import { WindowProvider } from './contexts/WindowContext';
 import { MainContent } from './components/layout/MainContent';
 import { PiPPlaceholder } from './components/layout/PiPPlaceholder';
 import { EditMessageModal } from './components/modals/EditMessageModal';
-import { networkInterceptor } from './services/networkInterceptor';
 
 const App: React.FC = () => {
   const { appSettings, setAppSettings, currentTheme, language } = useAppSettings();
   const t = useMemo(() => getTranslator(language), [language]);
   
-  // Initialize Network Interceptor
-  useEffect(() => {
-      networkInterceptor.mount();
-  }, []);
-
-  // Update Interceptor Configuration when settings change
-  useEffect(() => {
-      let proxyUrl: string | null = appSettings.apiProxyUrl;
-      let enabled = false;
-
-      if (appSettings.useCustomApiConfig && appSettings.useApiProxy) {
-          enabled = true;
-      } else if (process.env?.API_BASE_URL) {
-          proxyUrl = process.env.API_BASE_URL;
-          enabled = true;
-          console.log(`[NetworkInterceptor] Using ENV API_BASE_URL as proxy: ${proxyUrl}`);
-      }
-
-      networkInterceptor.configure(enabled, proxyUrl);
-  }, [appSettings.useCustomApiConfig, appSettings.useApiProxy, appSettings.apiProxyUrl]);
 
   const chatState = useChat(appSettings, setAppSettings, language);
   const {

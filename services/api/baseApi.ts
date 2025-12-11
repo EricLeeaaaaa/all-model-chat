@@ -22,7 +22,7 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
           .replace(/[\u2018\u2019]/g, "'") // smart single quotes to apostrophe
           .replace(/[\u201C\u201D]/g, '"') // smart double quotes to quote
           .replace(/[\u00A0]/g, ' '); // non-breaking space to regular space
-          
+           
       if (apiKey !== sanitizedApiKey) {
           logService.warn("API key was sanitized. Non-ASCII characters were replaced.");
       }
@@ -32,13 +32,16 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
       if (!baseUrl && process.env?.API_BASE_URL) {
         baseUrl = process.env.API_BASE_URL;
       }
-  
-      console.log('[DEBUG] getClient:', {
-        input_baseUrl: baseUrl,
-        env_API_BASE_URL: process.env?.API_BASE_URL || null,
-        final_config_baseUrl: baseUrl ? baseUrl.trim().replace(/\/$/, '') : 'DEFAULT (Google)'
+
+      logService.debug('[API] getClient baseUrl resolved', {
+        category: 'NETWORK',
+        data: {
+          input_baseUrl: baseUrl,
+          env_API_BASE_URL: process.env?.API_BASE_URL || null,
+          final_config_baseUrl: baseUrl ? baseUrl.trim().replace(/\/$/, '') : 'DEFAULT (Google)'
+        }
       });
-  
+
       // Use the SDK's native baseUrl support if provided.
       // This is more robust than the network interceptor for SDK-generated requests.
       if (baseUrl && baseUrl.trim().length > 0) {
@@ -64,8 +67,10 @@ export const getApiClient = (apiKey?: string | null, baseUrl?: string | null): G
 };
 
 /**
- * Async helper to get an API client with settings (proxy, etc) loaded from DB.
- * Respects the `useApiProxy` toggle.
+ * 统一使用此处的逻辑决定 baseUrl：
+ * - 未启用自定义配置 => 使用 .env 的 API_BASE_URL
+ * - 启用自定义配置且启用代理 => 使用 appSettings.apiProxyUrl
+ * - 启用自定义配置但禁用代理 => 仍使用 .env 的 API_BASE_URL
  */
 export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenAI> => {
     const settings = await dbService.getAppSettings();
@@ -75,7 +80,9 @@ export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenA
     const shouldUseProxy = !!(settings?.useCustomApiConfig && settings?.useApiProxy);
     const apiProxyUrl = shouldUseProxy ? settings?.apiProxyUrl : null;
     
-    console.log('[DEBUG] getConfiguredApiClient:', {
+    logService.debug('[API] getConfiguredApiClient resolved', {
+      category: 'NETWORK',
+      data: {
         apiKey: apiKey ? '***' : null,
         settings_useCustom: settings?.useCustomApiConfig,
         settings_useProxy: settings?.useApiProxy,
@@ -83,6 +90,7 @@ export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenA
         shouldUseProxy,
         finalProxyUrl: apiProxyUrl,
         env_BASE_URL: process.env?.API_BASE_URL || null
+      }
     });
     
     if (settings?.useCustomApiConfig && !shouldUseProxy) {
