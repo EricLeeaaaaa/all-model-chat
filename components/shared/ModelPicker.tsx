@@ -1,10 +1,9 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ModelOption } from '../../types';
-import { Loader2, Search, X, Check, Box, Volume2, Image as ImageIcon, Sparkles, Star } from 'lucide-react';
+import { Search, X, Check, Box, Volume2, Image as ImageIcon, Sparkles, MessageSquareText } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { sortModels } from '../../utils/appUtils';
-import { useResponsiveValue } from '../../hooks/useDevice';
 
 export const getModelIcon = (model: ModelOption | undefined) => {
     if (!model) return <Box size={15} className="text-[var(--theme-text-tertiary)]" strokeWidth={1.5} />;
@@ -12,6 +11,10 @@ export const getModelIcon = (model: ModelOption | undefined) => {
     const lowerId = id.toLowerCase();
     if (lowerId.includes('tts')) return <Volume2 size={15} className="text-purple-500 dark:text-purple-400 flex-shrink-0" strokeWidth={1.5} />;
     if (lowerId.includes('imagen') || lowerId.includes('image-')) return <ImageIcon size={15} className="text-rose-500 dark:text-rose-400 flex-shrink-0" strokeWidth={1.5} />;
+    
+    // Gemini Text Models
+    if (lowerId.includes('gemini')) return <MessageSquareText size={15} className="text-sky-500 dark:text-sky-400 flex-shrink-0" strokeWidth={1.5} />;
+
     if (isPinned) return <Sparkles size={15} className="text-sky-500 dark:text-sky-400 flex-shrink-0" strokeWidth={1.5} />;
     return <Box size={15} className="text-[var(--theme-text-tertiary)] opacity-70 flex-shrink-0" strokeWidth={1.5} />;
 };
@@ -29,10 +32,6 @@ export interface ModelPickerProps {
         selectedModel: ModelOption | undefined;
         ref: React.RefObject<any>;
     }) => React.ReactNode;
-
-    // Optional: Default model star functionality
-    defaultModelId?: string;
-    onSetDefault?: (modelId: string) => void;
     
     dropdownClassName?: string;
 }
@@ -43,8 +42,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
     onSelect,
     t,
     renderTrigger,
-    defaultModelId,
-    onSetDefault,
     dropdownClassName
 }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -169,7 +166,6 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                                     filteredModels.map((model, index) => {
                                         const prevModel = filteredModels[index - 1];
                                         const showDivider = index > 0 && prevModel.isPinned && !model.isPinned;
-                                        const isDefault = model.id === defaultModelId;
                                         const isSelected = model.id === selectedId;
 
                                         return (
@@ -195,21 +191,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({
                                                     </div>
                                                     
                                                     <div className="flex items-center gap-1 flex-shrink-0">
-                                                        {onSetDefault && (
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); onSetDefault(model.id); }}
-                                                                className={`p-1.5 rounded-full transition-all focus:outline-none z-10
-                                                                    ${isDefault 
-                                                                        ? 'text-yellow-500 opacity-100 hover:bg-yellow-500/10' 
-                                                                        : 'text-[var(--theme-text-tertiary)] opacity-0 group-hover:opacity-50 hover:!opacity-100 hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]'
-                                                                    }
-                                                                `}
-                                                                title={isDefault ? t('header_setDefault_isDefault') : t('header_setDefault_action')}
-                                                            >
-                                                                <Star size={14} fill={isDefault ? "currentColor" : "none"} strokeWidth={2} />
-                                                            </button>
-                                                        )}
-                                                        {isSelected && !onSetDefault && <Check size={14} className="text-[var(--theme-text-link)]" strokeWidth={1.5} />}
+                                                        {isSelected && <Check size={14} className="text-[var(--theme-text-link)]" strokeWidth={1.5} />}
                                                     </div>
                                                 </div>
                                             </React.Fragment>

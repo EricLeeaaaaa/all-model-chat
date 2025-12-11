@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { AppSettings, ChatGroup, SavedChatSession, ChatMessage, SideViewContent } from './types';
-import { CANVAS_SYSTEM_PROMPT, DEFAULT_SYSTEM_INSTRUCTION, DEFAULT_APP_SETTINGS, THINKING_BUDGET_RANGES } from './constants/appConstants';
+import { CANVAS_SYSTEM_PROMPT, DEFAULT_SYSTEM_INSTRUCTION, DEFAULT_APP_SETTINGS } from './constants/appConstants';
 import { useAppSettings } from './hooks/useAppSettings';
 import { useChat } from './hooks/useChat';
 import { useAppUI } from './hooks/useAppUI';
@@ -57,7 +57,7 @@ const App: React.FC = () => {
       scrollToPrevTurn, scrollToNextTurn, toggleGoogleSearch,
       toggleCodeExecution, toggleUrlContext, toggleDeepSearch,
       updateAndPersistSessions, updateAndPersistGroups,
-      imageSize, setImageSize, handleUpdateMessageContent
+      imageSize, setImageSize, handleUpdateMessageContent, handleUpdateMessageFile
   } = chatState;
 
   const {
@@ -153,6 +153,7 @@ const App: React.FC = () => {
     if (activeSessionId && setCurrentChatSettings) {
       setCurrentChatSettings(prevChatSettings => ({
         ...prevChatSettings,
+        modelId: newSettings.modelId, // Sync model change to active session
         temperature: newSettings.temperature,
         topP: newSettings.topP,
         systemInstruction: newSettings.systemInstruction,
@@ -161,16 +162,9 @@ const App: React.FC = () => {
         thinkingBudget: newSettings.thinkingBudget,
         thinkingLevel: newSettings.thinkingLevel,
         lockedApiKey: null,
+        mediaResolution: newSettings.mediaResolution,
       }));
     }
-  };
-
-  const handleSetDefaultModel = (modelId: string) => {
-    logService.info(`Setting new default model: ${modelId}`);
-    const newThinkingBudget = THINKING_BUDGET_RANGES[modelId]
-      ? THINKING_BUDGET_RANGES[modelId].max
-      : DEFAULT_APP_SETTINGS.thinkingBudget;
-    setAppSettings(prev => ({ ...prev, modelId, thinkingBudget: newThinkingBudget }));
   };
 
   const handleLoadCanvasPromptAndSave = () => {
@@ -283,8 +277,6 @@ const App: React.FC = () => {
     onLoadCanvasPrompt: handleLoadCanvasPromptAndSave,
     isCanvasPromptActive,
     isKeyLocked: !!currentChatSettings.lockedApiKey,
-    defaultModelId: appSettings.modelId,
-    onSetDefaultModel: handleSetDefaultModel,
     themeId: currentTheme.id,
     modelsLoadingError: null,
     messages,
@@ -295,6 +287,7 @@ const App: React.FC = () => {
     onDeleteMessage: handleDeleteMessage,
     onRetryMessage: handleRetryMessage,
     onEditMessageContent: setEditingContentMessage,
+    onUpdateMessageFile: handleUpdateMessageFile, // Added this prop
     showThoughts: currentChatSettings.showThoughts,
     themeColors: currentTheme.colors,
     baseFontSize: appSettings.baseFontSize,
@@ -378,7 +371,8 @@ const App: React.FC = () => {
             isCodeExecutionEnabled,
             isUrlContextEnabled,
             isDeepSearchEnabled,
-            safetySettings
+            safetySettings,
+            mediaResolution
         } = currentChatSettings;
 
         return { 
@@ -397,7 +391,8 @@ const App: React.FC = () => {
             isCodeExecutionEnabled,
             isUrlContextEnabled,
             isDeepSearchEnabled,
-            safetySettings
+            safetySettings,
+            mediaResolution
         };
     }
     return appSettings;

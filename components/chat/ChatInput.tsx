@@ -11,9 +11,12 @@ import { useSlashCommands } from '../../hooks/useSlashCommands';
 import { useIsDesktop } from '../../hooks/useDevice';
 import { useWindowContext } from '../../contexts/WindowContext';
 import { useChatInputState, INITIAL_TEXTAREA_HEIGHT_PX } from '../../hooks/useChatInputState';
-import { VideoSettingsModal } from '../modals/VideoSettingsModal';
+import { FileConfigurationModal } from '../modals/FileConfigurationModal';
 import { FilePreviewModal } from '../shared/ImageZoomModal';
 import { useChatInputHandlers } from '../../hooks/useChatInputHandlers';
+import { TokenCountModal } from '../modals/TokenCountModal';
+import { useBackButton } from '../../hooks/useBackButton';
+import { isGemini3Model } from '../../utils/appUtils';
 
 export interface ChatInputProps {
   appSettings: AppSettings;
@@ -62,7 +65,6 @@ export interface ChatInputProps {
   onTogglePip: () => void;
   isPipActive?: boolean;
   isHistorySidebarOpen?: boolean;
-  onSetDefaultModel: (modelId: string) => void;
   generateQuadImages: boolean;
   onToggleQuadImages: () => void;
   setCurrentChatSettings: (updater: (prevSettings: IndividualChatSettings) => IndividualChatSettings) => void;
@@ -82,7 +84,7 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
     isUrlContextEnabled, onToggleUrlContext,
     isDeepSearchEnabled, onToggleDeepSearch,
     onClearChat, onNewChat, onOpenSettings, onToggleCanvasPrompt, onTogglePinCurrentSession, onTogglePip,
-    onRetryLastTurn, onSelectModel, availableModels, onEditLastUserMessage, isPipActive, isHistorySidebarOpen, onSetDefaultModel,
+    onRetryLastTurn, onSelectModel, availableModels, onEditLastUserMessage, isPipActive, isHistorySidebarOpen,
     generateQuadImages, onToggleQuadImages, setCurrentChatSettings,
     onSuggestionClick, onOrganizeInfoClick, showEmptyStateSuggestions
   } = props;
@@ -113,6 +115,10 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
   const [configuringFile, setConfiguringFile] = useState<UploadedFile | null>(null);
   const [previewFile, setPreviewFile] = useState<UploadedFile | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+
+  // Enable Back Button support for Fullscreen Input
+  useBackButton(isFullscreen, handleToggleFullscreen);
 
   const {
     showRecorder, showCreateTextFileEditor, showAddByIdInput, showAddByUrlInput, isHelpModalOpen,
@@ -140,12 +146,12 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
     t, onToggleGoogleSearch, onToggleDeepSearch, onToggleCodeExecution, onToggleUrlContext, onClearChat, onNewChat, onOpenSettings,
     onToggleCanvasPrompt, onTogglePinCurrentSession, onRetryLastTurn, onStopGenerating, onAttachmentAction: handleAttachmentAction,
     availableModels, onSelectModel, onMessageSent, setIsHelpModalOpen, textareaRef, onEditLastUserMessage, setInputText,
-    onTogglePip, onSetDefaultModel, currentModelId: currentChatSettings.modelId,
+    onTogglePip, currentModelId: currentChatSettings.modelId,
     onSetThinkingLevel: (level) => setCurrentChatSettings(prev => ({ ...prev, thinkingLevel: level })),
     thinkingLevel: currentChatSettings.thinkingLevel,
   });
 
-  const isModalOpen = showCreateTextFileEditor || showRecorder || !!configuringFile || !!previewFile;
+  const isModalOpen = showCreateTextFileEditor || showRecorder || !!configuringFile || !!previewFile || showTokenModal;
   const isAnyModalOpen = isModalOpen || isHelpModalOpen;
   
   const canSend = (
@@ -215,6 +221,10 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
   const isFlashImageModel = currentChatSettings.modelId.includes('gemini-2.5-flash-image');
   const isRealImagen = currentChatSettings.modelId.includes('imagen');
   
+  // Calculate if active model is a Gemini 3 model (for chat or image)
+  // Used to enable per-file resolution settings
+  const isGemini3 = isGemini3Model(currentChatSettings.modelId);
+
   let supportedAspectRatios: string[] | undefined;
   
   if (isRealImagen) {
@@ -272,6 +282,7 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
             isDeepSearchEnabled,
             onToggleDeepSearch: () => handlers.handleToggleToolAndFocus(onToggleDeepSearch),
             onAddYouTubeVideo: () => { setShowAddByUrlInput(true); textareaRef.current?.focus(); },
+            onCountTokens: () => setShowTokenModal(true),
             onRecordButtonClick: handleVoiceInputClick,
             onCancelRecording: handleCancelRecording,
             isRecording,
@@ -302,6 +313,7 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
             onCancelUpload,
             onConfigure: setConfiguringFile,
             onPreview: setPreviewFile,
+            isGemini3,
         }}
         inputProps={{
             value: inputText,
@@ -362,11 +374,23 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
         t={t}
       />
       
-      <VideoSettingsModal 
+      <FileConfigurationModal 
         isOpen={!!configuringFile} 
         onClose={() => setConfiguringFile(null)} 
         file={configuringFile}
-        onSave={handlers.handleSaveVideoMetadata}
+        onSave={handlers.handleSaveFileConfig}
+        t={t}
+        isGemini3={isGemini3}
+      />
+
+      <TokenCountModal
+        isOpen={showTokenModal}
+        onClose={() => setShowTokenModal(false)}
+        initialText={inputText}
+        initialFiles={selectedFiles}
+        appSettings={appSettings}
+        availableModels={availableModels}
+        currentModelId={currentChatSettings.modelId}
         t={t}
       />
 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ThemeColors } from '../constants/themeConstants';
-import { AppSettings } from '../types';
+import { AppSettings, MediaResolution } from '../types';
 import { Theme, AVAILABLE_THEMES } from '../constants/themeConstants';
 import { 
   SUPPORTED_IMAGE_MIME_TYPES, 
@@ -99,7 +99,7 @@ export const showNotification = async (title: string, options?: NotificationOpti
   const show = () => {
     // Use a tag to prevent multiple notifications from stacking up.
     // The 'renotify' property ensures that even with the same tag, the user is alerted.
-    const notification = new Notification(title, { ...options, tag: 'all-model-chat-response', renotify: true });
+    const notification = new Notification(title, { ...options, tag: 'all-model-chat-response', renotify: true } as any);
 
     notification.onclick = () => {
       window.focus();
@@ -162,6 +162,21 @@ export const extractTextFromNode = (node: React.ReactNode): string => {
     if (!node) return '';
     if (typeof node === 'string' || typeof node === 'number') return String(node);
     if (Array.isArray(node)) return node.map(extractTextFromNode).join('');
-    if (React.isValidElement(node)) return extractTextFromNode(node.props.children);
+    if (React.isValidElement(node) && node.props && 'children' in node.props) return extractTextFromNode((node.props as any).children);
     return '';
+};
+
+export const getResolutionColor = (resolution?: MediaResolution): string => {
+    switch (resolution) {
+        case MediaResolution.MEDIA_RESOLUTION_LOW:
+            return 'text-emerald-400 hover:text-emerald-300';
+        case MediaResolution.MEDIA_RESOLUTION_MEDIUM:
+            return 'text-sky-400 hover:text-sky-300';
+        case MediaResolution.MEDIA_RESOLUTION_HIGH:
+            return 'text-violet-400 hover:text-violet-300';
+        case MediaResolution.MEDIA_RESOLUTION_ULTRA_HIGH:
+            return 'text-amber-400 hover:text-amber-300';
+        default:
+            return 'text-white/80 hover:text-white';
+    }
 };

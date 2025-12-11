@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useCallback } from 'react';
-import { AppSettings, UploadedFile } from '../types';
+import { AppSettings, UploadedFile, ChatSettings } from '../types';
 import { useModels } from './useModels';
 import { useChatHistory } from './useChatHistory';
 import { useFileHandling } from './useFileHandling';
@@ -239,6 +239,7 @@ export const useChat = (appSettings: AppSettings, setAppSettings: React.Dispatch
         startNewChat,
         handleDeleteChatHistorySession,
         handleRenameSession: historyHandler.handleRenameSession,
+        handleTogglePinSession: historyHandler.handleTogglePinSession,
         handleDuplicateSession: historyHandler.handleDuplicateSession,
         handleAddNewGroup: historyHandler.handleAddNewGroup,
         handleDeleteGroup: historyHandler.handleDeleteGroup,
@@ -286,5 +287,6 @@ export const useChat = (appSettings: AppSettings, setAppSettings: React.Dispatch
         toggleDeepSearch: chatActions.toggleDeepSearch,
         handleTogglePinCurrentSession: chatActions.handleTogglePinCurrentSession,
         handleUpdateMessageContent: chatActions.handleUpdateMessageContent,
+        handleUpdateMessageFile: chatActions.handleUpdateMessageFile,
     };
 };
