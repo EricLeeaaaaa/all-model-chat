@@ -45,7 +45,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   const getProxyPlaceholder = () => {
     if (!useCustomApiConfig) return 'Enable custom config first';
     if (!useApiProxy) return 'Enable proxy URL to set value';
-    return 'e.g., https://api-proxy.de/gemini/v1beta';
+    return 'e.g., https://your-proxy-domain.com/gemini';
   };
 
   // Environment variable detection
@@ -57,7 +57,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   // Calculate current active Base URL and its source for display
   let activeBaseUrlDisplay = 'https://generativelanguage.googleapis.com';
   let activeSource = 'Default (Google)';
-  
+
   if (useCustomApiConfig) {
       if (useApiProxy && apiProxyUrl) {
           activeBaseUrlDisplay = apiProxyUrl;
@@ -71,20 +71,14 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
   }
 
   // Calculate preview URL - show what the API request path would look like
-  let cleanBaseUrlForPreview = activeBaseUrlDisplay.replace(/\/+$/, '');
-  let previewUrl;
-  // If the URL already includes an API path like /v1beta, /v1, or /v2, don't add /v1beta again
-  if (!cleanBaseUrlForPreview.includes('/v1beta') && !cleanBaseUrlForPreview.includes('/v1') && !cleanBaseUrlForPreview.includes('/v2')) {
-      previewUrl = `${cleanBaseUrlForPreview}/v1beta/models/gemini-2.5-flash:generateContent`;
-  } else {
-      // If it already has an API path, just append the model endpoint
-      previewUrl = `${cleanBaseUrlForPreview}/models/gemini-2.5-flash:generateContent`;
-  }
+  // Apply same normalization as baseApi.ts to strip version suffixes and trailing slashes
+  let cleanBaseUrlForPreview = activeBaseUrlDisplay.replace(/\/+$/, '').replace(/\/v\d+(beta)?$/, '');
+  const previewUrl = `${cleanBaseUrlForPreview}/v1beta/models/gemini-2.5-flash:generateContent`;
 
   const handleTestConnection = async () => {
       let keyToTest: string | null = null;
       let urlToTest: string | null = null;
-  
+
       // Strict Logic for Test Button matching baseApi.ts
       if (useCustomApiConfig) {
           keyToTest = apiKey;
@@ -95,34 +89,34 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
           keyToTest = envApiKey || null;
           urlToTest = envBaseUrl || null;
       }
-  
+
       if (!keyToTest) {
           setTestStatus('error');
           setTestMessage(useCustomApiConfig ? "Please enter an API Key." : "No API Key found in environment.");
           return;
       }
-  
+
       const keys = parseApiKeys(keyToTest);
       const firstKey = keys[0];
-  
+
       if (!firstKey) {
           setTestStatus('error');
           setTestMessage("Invalid API Key format.");
           return;
       }
-  
+
       setTestStatus('testing');
       setTestMessage(null);
-  
+
       try {
           // Use getClient directly to test specific params
           const ai = getClient(firstKey, urlToTest);
-  
+
           await ai.models.generateContent({
               model: 'gemini-2.5-flash',
               contents: 'Hello',
           });
-  
+
           setTestStatus('success');
       } catch (error) {
           setTestStatus('error');
@@ -148,11 +142,6 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
       }
   };
 
-  const handleResetProxy = () => {
-      setApiProxyUrl('https://api-proxy.de/gemini/v1beta');
-      setTestStatus('idle');
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -161,7 +150,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
              {t('settingsApiConfig')}
          </h3>
       </div>
-    
+
       <div className="overflow-hidden">
         {/* Header Toggle */}
         <div className="flex items-center justify-between py-2">
@@ -187,7 +176,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
               onChange={setUseCustomApiConfig}
             />
         </div>
-    
+
         {/* Content */}
         <div className={`transition-all duration-300 ease-in-out ${useCustomApiConfig ? 'opacity-100 max-h-[600px] pt-4' : 'opacity-50 max-h-0 overflow-hidden'}`}>
             <div className="space-y-5">
@@ -222,7 +211,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                         <span>{t('settingsApiKeyHelpText')}</span>
                     </p>
                 </div>
-    
+
                 {/* Proxy Settings */}
                 <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between py-2">
@@ -243,15 +232,6 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                                 <Sparkles size={10} strokeWidth={isVertexExpressActive ? 2 : 1.5} />
                                 <span>{t('apiConfig_vertexExpress_btn')}</span>
                             </button>
-                            <button
-                                type="button"
-                                onClick={handleResetProxy}
-                                className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors border text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] border-transparent hover:border-[var(--theme-border-secondary)]"
-                                title="Reset to default"
-                            >
-                                <RotateCcw size={10} strokeWidth={1.5} />
-                                <span>Reset</span>
-                            </button>
                         </div>
                         <Toggle
                           id="use-api-proxy-toggle"
@@ -262,7 +242,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                           }}
                         />
                     </div>
-    
+
                     <div className={`transition-all duration-200 ${useApiProxy ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                         <input
                             id="api-proxy-url-input"
@@ -277,7 +257,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                 </div>
             </div>
         </div>
-    
+
         {/* Info Box & Test Button (Always Visible) */}
         <div className="mt-5 pt-4 border-t border-[var(--theme-border-secondary)] space-y-4">
              {/* Display active Base URL source */}
@@ -297,7 +277,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                     </code>
                 </div>
             </div>
-    
+
             <div className="flex flex-col gap-2">
                 <button
                     type="button"
@@ -316,7 +296,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
                     )}
                     <span>{testStatus === 'testing' ? t('apiConfig_testing') : t('apiConfig_testConnection')}</span>
                 </button>
-    
+
                 {testStatus === 'success' && (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-600 text-sm animate-in fade-in slide-in-from-top-1">
                         <CheckCircleIcon />

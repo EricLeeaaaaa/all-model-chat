@@ -11,7 +11,8 @@ export const POLLING_INTERVAL_MS = 2000;
 export const MAX_POLLING_DURATION_MS = 10 * 60 * 1000;
 
 /**
- * Helper function: Normalize URL to remove trailing slashes and handle protocol
+ * Helper function: Normalize URL to remove trailing slashes, version suffixes, and handle protocol.
+ * The SDK appends /v1beta or /v1 automatically, so we must strip them from the base.
  * @param url - The URL to normalize
  * @returns Normalized URL or null if empty/invalid
  */
@@ -24,6 +25,9 @@ const normalizeUrl = (url: string | null | undefined): string | null => {
     while (cleanUrl.endsWith('/')) {
         cleanUrl = cleanUrl.slice(0, -1);
     }
+
+    // Remove version suffixes (v1, v1beta, v2, etc.) to prevent double-versioning by SDK
+    cleanUrl = cleanUrl.replace(/\/v\d+(beta)?$/, '');
 
     // Ensure URL has protocol, if not provided assume https
     if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
@@ -89,7 +93,7 @@ export const getClient = (apiKey: string, specificBaseUrl?: string | null): Goog
 export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenAI> => {
     // 1. Read user settings
     const settings = await dbService.getAppSettings();
-    
+
     let resolvedBaseUrl: string | null = null;
 
     // 2. Determine Base URL based on strict separation logic
