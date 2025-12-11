@@ -10,7 +10,7 @@ export const getActiveApiConfig = (appSettings: AppSettings): { apiKeysString: s
         };
     }
     return {
-        apiKeysString: process.env.API_KEY || null,
+        apiKeysString: process.env.GEMINI_API_KEY || null,
     };
 };
 
@@ -43,7 +43,7 @@ export const getKeyForRequest = (
     if (!apiKeysString) {
         return { error: "API Key not configured." };
     }
-    
+
     const availableKeys = parseApiKeys(apiKeysString);
 
     if (availableKeys.length === 0) {
@@ -106,8 +106,8 @@ export const getKeyForRequest = (
 
     const nextKey = availableKeys[targetIndex];
     logUsage(nextKey);
-    
-    // If we are here, we are providing a rotated key. 
+
+    // If we are here, we are providing a rotated key.
     // If there was a locked key that was invalid, this is definitely a new key.
     // If there was no locked key, it's also effectively a "new" key selection strategy.
     return { key: nextKey, isNewKey: true };
