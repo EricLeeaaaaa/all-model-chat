@@ -33,7 +33,7 @@ export const getClient = (apiKey: string, baseUrl?: string | null): GoogleGenAI 
         baseUrl = process.env.API_BASE_URL;
       }
 
-      logService.debug('[API] getClient baseUrl resolved', {
+      logService.info('[API] getClient baseUrl resolved', {
         category: 'NETWORK',
         data: {
           input_baseUrl: baseUrl,
@@ -80,7 +80,7 @@ export const getConfiguredApiClient = async (apiKey: string): Promise<GoogleGenA
     const shouldUseProxy = !!(settings?.useCustomApiConfig && settings?.useApiProxy);
     const apiProxyUrl = shouldUseProxy ? settings?.apiProxyUrl : null;
     
-    logService.debug('[API] getConfiguredApiClient resolved', {
+    logService.info('[API] getConfiguredApiClient resolved', {
       category: 'NETWORK',
       data: {
         apiKey: apiKey ? '***' : null,
