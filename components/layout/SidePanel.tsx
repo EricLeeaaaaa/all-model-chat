@@ -6,6 +6,7 @@ import { MermaidBlock } from '../message/MermaidBlock';
 import { GraphvizBlock } from '../message/GraphvizBlock';
 import { triggerDownload, sanitizeFilename } from '../../utils/exportUtils';
 import { CodeEditor } from '../shared/CodeEditor';
+import { useIsMobile } from '../../hooks/useDevice';
 
 interface SidePanelProps {
     content: SideViewContent | null;
@@ -25,6 +26,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ content, onClose, themeId 
     const isResizingRef = useRef(false);
     const sidebarRef = useRef<HTMLDivElement>(null);
 
+    const isMobile = useIsMobile();
+    
     // Initial sync
     useEffect(() => {
         if (content) {

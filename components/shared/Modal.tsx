@@ -70,6 +70,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalContentRef}
         className={`${contentClassName} ${isOpen ? 'modal-enter-animation' : 'modal-exit-animation'}`}
+        onClick={(e) => e.stopPropagation()}
       >
         {children}
       </div>

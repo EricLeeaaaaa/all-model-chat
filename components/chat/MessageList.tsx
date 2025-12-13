@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { ChatMessage, UploadedFile, AppSettings, SideViewContent } from '../../types';
+import { ChatMessage, UploadedFile, AppSettings, SideViewContent, VideoMetadata } from '../../types';
 import { Message } from '../message/Message';
 import { translations } from '../../utils/appUtils';
 import { HtmlPreviewModal } from '../modals/HtmlPreviewModal';
@@ -10,6 +10,10 @@ import { SUPPORTED_IMAGE_MIME_TYPES } from '../../constants/fileConstants';
 import { WelcomeScreen } from './message-list/WelcomeScreen';
 import { MessageListPlaceholder } from './message-list/MessageListPlaceholder';
 import { ScrollNavigation } from './message-list/ScrollNavigation';
+import { FileConfigurationModal } from '../modals/FileConfigurationModal';
+import { MediaResolution } from '../../types/settings';
+import { isGemini3Model } from '../../utils/appUtils';
+import { TextSelectionToolbar } from './TextSelectionToolbar';
 
 export interface MessageListProps {
   messages: ChatMessage[];
@@ -21,6 +25,7 @@ export interface MessageListProps {
   onDeleteMessage: (messageId: string) => void;
   onRetryMessage: (messageId: string) => void;
   onEditMessageContent: (message: ChatMessage) => void;
+  onUpdateMessageFile: (messageId: string, fileId: string, updates: { videoMetadata?: VideoMetadata, mediaResolution?: MediaResolution }) => void;
   showThoughts: boolean;
   themeColors: ThemeColors;
   themeId: string;
@@ -40,15 +45,17 @@ export interface MessageListProps {
   onScrollToNextTurn: () => void;
   chatInputHeight: number;
   appSettings: AppSettings;
+  currentModelId: string;
   onOpenSidePanel: (content: SideViewContent) => void;
+  onQuote: (text: string) => void;
 }
 
 export const MessageList: React.FC<MessageListProps> = ({ 
     messages, sessionTitle, scrollContainerRef, setScrollContainerRef, onScrollContainerScroll, 
-    onEditMessage, onDeleteMessage, onRetryMessage, onEditMessageContent, showThoughts, themeColors, baseFontSize,
+    onEditMessage, onDeleteMessage, onRetryMessage, onEditMessageContent, onUpdateMessageFile, showThoughts, themeColors, baseFontSize,
     expandCodeBlocksByDefault, isMermaidRenderingEnabled, isGraphvizRenderingEnabled, onSuggestionClick, onOrganizeInfoClick, onFollowUpSuggestionClick, onTextToSpeech, ttsMessageId, t, language, themeId,
     scrollNavVisibility, onScrollToPrevTurn, onScrollToNextTurn,
-    chatInputHeight, appSettings, onOpenSidePanel
+    chatInputHeight, appSettings, currentModelId, onOpenSidePanel, onQuote
 }) => {
   const [previewFile, setPreviewFile] = useState<UploadedFile | null>(null);
   
@@ -56,6 +63,9 @@ export const MessageList: React.FC<MessageListProps> = ({
   const [htmlToPreview, setHtmlToPreview] = useState<string | null>(null);
   const [initialTrueFullscreenRequest, setInitialTrueFullscreenRequest] = useState(false);
   
+  // File Configuration State
+  const [configuringFile, setConfiguringFile] = useState<{ file: UploadedFile, messageId: string } | null>(null);
+
   // Virtualization state
   const [visibleMessages, setVisibleMessages] = useState<Set<string>>(() => {
     const initialVisible = new Set<string>();
@@ -135,6 +145,21 @@ export const MessageList: React.FC<MessageListProps> = ({
     setInitialTrueFullscreenRequest(false);
   }, []);
 
+  const handleConfigureFile = useCallback((file: UploadedFile, messageId: string) => {
+      setConfiguringFile({ file, messageId });
+  }, []);
+
+  const handleSaveFileConfig = useCallback((fileId: string, updates: { videoMetadata?: VideoMetadata, mediaResolution?: MediaResolution }) => {
+      if (configuringFile) {
+          onUpdateMessageFile(configuringFile.messageId, fileId, updates);
+      }
+  }, [configuringFile, onUpdateMessageFile]);
+
+  // Determine if current model is Gemini 3 to enable per-part resolution
+  const isGemini3 = useMemo(() => {
+      return isGemini3Model(currentModelId);
+  }, [currentModelId]);
+
   return (
     <>
     <div 
@@ -144,6 +169,8 @@ export const MessageList: React.FC<MessageListProps> = ({
       style={{ paddingBottom: chatInputHeight ? `${chatInputHeight + 16}px` : '160px' }}
       aria-live="polite" 
     >
+      <TextSelectionToolbar onQuote={onQuote} containerRef={scrollContainerRef} />
+      
       {messages.length === 0 ? (
         <WelcomeScreen 
             t={t}
@@ -182,6 +209,8 @@ export const MessageList: React.FC<MessageListProps> = ({
                         t={t}
                         appSettings={appSettings}
                         onOpenSidePanel={onOpenSidePanel}
+                        onConfigureFile={msg.role === 'user' ? handleConfigureFile : undefined}
+                        isGemini3={isGemini3}
                     />
                 );
             } else {
@@ -223,6 +252,15 @@ export const MessageList: React.FC<MessageListProps> = ({
         initialTrueFullscreenRequest={initialTrueFullscreenRequest}
       />
     )}
+
+    <FileConfigurationModal 
+        isOpen={!!configuringFile} 
+        onClose={() => setConfiguringFile(null)} 
+        file={configuringFile?.file || null}
+        onSave={handleSaveFileConfig}
+        t={t}
+        isGemini3={isGemini3}
+    />
     </>
   );
 };
