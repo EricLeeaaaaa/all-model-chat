@@ -39,7 +39,7 @@ export const useChatInputState = (activeSessionId: string | null, isEditing: boo
     // Load draft from localStorage when session changes
     useEffect(() => {
         if (activeSessionId && !isEditing) {
-            const draftKey = `chatDraft_${activeSessionId}`;
+            const draftKey = `aiStudio_draft_${activeSessionId}`;
             const savedDraft = localStorage.getItem(draftKey);
             setInputText(savedDraft || '');
             setQuoteText(''); // Reset quote on session change
@@ -50,7 +50,7 @@ export const useChatInputState = (activeSessionId: string | null, isEditing: boo
     useEffect(() => {
         if (!activeSessionId) return;
         const handler = setTimeout(() => {
-            const draftKey = `chatDraft_${activeSessionId}`;
+            const draftKey = `aiStudio_draft_${activeSessionId}`;
             if (inputText.trim()) {
                 localStorage.setItem(draftKey, inputText);
             } else {
@@ -62,7 +62,7 @@ export const useChatInputState = (activeSessionId: string | null, isEditing: boo
 
     const clearCurrentDraft = useCallback(() => {
         if (activeSessionId) {
-            const draftKey = `chatDraft_${activeSessionId}`;
+            const draftKey = `aiStudio_draft_${activeSessionId}`;
             localStorage.removeItem(draftKey);
         }
     }, [activeSessionId]);

@@ -1,27 +1,27 @@
-
 import React from 'react';
 import { ThemeColors } from '../constants/themeConstants';
 import { AppSettings, MediaResolution } from '../types';
 import { Theme, AVAILABLE_THEMES } from '../constants/themeConstants';
-import { 
-  SUPPORTED_IMAGE_MIME_TYPES, 
-  SUPPORTED_AUDIO_MIME_TYPES, 
-  SUPPORTED_VIDEO_MIME_TYPES, 
+import {
+  SUPPORTED_IMAGE_MIME_TYPES,
+  SUPPORTED_AUDIO_MIME_TYPES,
+  SUPPORTED_VIDEO_MIME_TYPES,
   SUPPORTED_PDF_MIME_TYPES,
   SUPPORTED_SPREADSHEET_MIME_TYPES
 } from '../constants/fileConstants';
-import { 
-  ImageIcon, 
-  FileAudio, 
-  FileVideo, 
-  Youtube, 
-  FileText, 
-  Presentation, 
-  FileSpreadsheet, 
-  Archive, 
-  FileCode2, 
-  AlertTriangle 
+import {
+  ImageIcon,
+  FileAudio,
+  FileVideo,
+  Youtube,
+  FileText,
+  Presentation,
+  FileSpreadsheet,
+  Archive,
+  FileCode2,
+  AlertTriangle
 } from 'lucide-react';
+import { APP_LOGO_URI } from '../constants/appConstants'; // Updated import
 
 export const generateThemeCssVariables = (colors: ThemeColors): string => {
   let css = ':root {\n';
@@ -48,7 +48,7 @@ export const applyThemeToDocument = (doc: Document, theme: Theme, settings: AppS
   const hljsDarkTheme = doc.getElementById('hljs-dark-theme') as HTMLLinkElement;
   const hljsLightTheme = doc.getElementById('hljs-light-theme') as HTMLLinkElement;
 
-  const isDark = theme.id === 'onyx';
+  const isDark = theme.id === 'dark';
 
   if (markdownDarkTheme) markdownDarkTheme.disabled = !isDark;
   if (markdownLightTheme) markdownLightTheme.disabled = isDark;
@@ -64,7 +64,6 @@ export function pcmBase64ToWavUrl(
   numChannels = 1,
 ): string {
   const pcm = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-  // Write WAV header
   const bytesPerSample = 2;
   const blockAlign = numChannels * bytesPerSample;
   const wav = new ArrayBuffer(44 + pcm.length);
@@ -76,8 +75,8 @@ export function pcmBase64ToWavUrl(
   writeStr('RIFF');
   dv.setUint32(p, 36 + pcm.length, true); p += 4;
   writeStr('WAVEfmt ');
-  dv.setUint32(p, 16, true); p += 4;        // fmt length
-  dv.setUint16(p, 1, true);  p += 2;        // PCM
+  dv.setUint32(p, 16, true); p += 4;
+  dv.setUint16(p, 1, true);  p += 2;
   dv.setUint16(p, numChannels, true); p += 2;
   dv.setUint32(p, sampleRate, true); p += 4;
   dv.setUint32(p, sampleRate * blockAlign, true); p += 4;
@@ -97,16 +96,13 @@ export const showNotification = async (title: string, options?: NotificationOpti
   }
 
   const show = () => {
-    // Use a tag to prevent multiple notifications from stacking up.
-    // The 'renotify' property ensures that even with the same tag, the user is alerted.
-    const notification = new Notification(title, { ...options, tag: 'all-model-chat-response', renotify: true } as any);
+    const notification = new Notification(title, { ...options, tag: 'ai-studio-response', renotify: true } as any);
 
     notification.onclick = () => {
       window.focus();
       notification.close();
     };
 
-    // Auto-close notification after a few seconds
     setTimeout(() => {
       notification.close();
     }, 7000);
@@ -133,7 +129,6 @@ export const getFileTypeCategory = (mimeType: string, error?: string): FileCateg
     if (SUPPORTED_IMAGE_MIME_TYPES.includes(mimeType) || mimeType === 'image/svg+xml') return 'image';
     if (SUPPORTED_SPREADSHEET_MIME_TYPES.includes(mimeType) || mimeType === 'text/csv' || mimeType === 'application/vnd.ms-excel') return 'spreadsheet';
     
-    // Expanded mappings for code execution outputs
     if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword') return 'doc';
     if (mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || mimeType === 'application/vnd.ms-powerpoint') return 'presentation';
     if (mimeType === 'application/zip' || mimeType === 'application/x-zip-compressed' || mimeType === 'application/x-7z-compressed' || mimeType === 'application/x-tar' || mimeType === 'application/gzip') return 'archive';
@@ -155,9 +150,6 @@ export const CATEGORY_STYLES: Record<FileCategory, { Icon: React.ElementType, co
     error: { Icon: AlertTriangle, colorClass: "text-[var(--theme-text-danger)]", bgClass: "bg-[var(--theme-bg-danger)]/10" },
 };
 
-/**
- * Helper to recursively extract text from React children (handles string, array, elements)
- */
 export const extractTextFromNode = (node: React.ReactNode): string => {
     if (!node) return '';
     if (typeof node === 'string' || typeof node === 'number') return String(node);

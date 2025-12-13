@@ -1,4 +1,3 @@
-
 export const settingsTranslations = {
     // Settings Modal and subcomponents
     settingsTitle: { en: 'Settings', zh: '设置' },
@@ -37,7 +36,7 @@ export const settingsTranslations = {
     settingsThinkingMode_preset: { en: 'Thinking Level', zh: '等级' },
     settingsThinkingMode_off: { en: 'Off', zh: '关闭' },
     settingsThinkingMode_custom: { en: 'Thinking Budget', zh: '预算' },
-    settingsThinkingMode_tooltip: { en: "Controls the model's 'thinking' process. Auto is recommended for quality. Off prioritizes speed. Custom lets you set a specific token budget for thinking.", zh: '控制模型的“思考”过程。为保证质量建议设为“自动”。“关闭”则优先考虑速度。“自定义”允许您为思考设置特定的令牌预算。' },
+    settingsThinkingMode_tooltip: { en: "Controls the model's 'thinking' process. Auto is recommended for quality. Off prioritizes speed. Custom lets you set a specific token budget for thinking.", zh: '控制模型的"思考"过程。为保证质量建议设为"自动"。"关闭"则优先考虑速度。"自定义"允许您为思考设置特定的令牌预算。' },
     settingsThinkingCustom_placeholder: { en: 'Token budget', zh: '令牌预算' },
     settingsThinkingBudget: { en: 'Thinking Budget', zh: '预算' },
     settingsThinkingLevel: { en: 'Thinking Level', zh: '等级' },
@@ -126,7 +125,7 @@ export const settingsTranslations = {
     settingsClearLogs: { en: 'Clear Logs', zh: '清空日志' },
     settingsClearLogs_confirm: { en: 'Are you sure you want to clear all system logs?', zh: '您确定要清空所有系统日志吗？' },
     
-    // Shortcuts Section
+    // Shortcuts
     shortcuts_general_title: { en: 'General', zh: '通用' },
     shortcuts_new_chat: { en: 'New Chat', zh: '新建对话' },
     shortcuts_open_settings: { en: 'Open Settings', zh: '打开设置' },
@@ -140,15 +139,14 @@ export const settingsTranslations = {
     shortcuts_slash_commands: { en: 'Slash Commands', zh: '斜杠命令' },
     shortcuts_focus_input: { en: 'Focus Input', zh: '聚焦输入框' },
 
-    // About Section
-    about_title: { en: 'All Model Chat', zh: 'All Model Chat' },
+    // About Section - Refined for White Labeling
+    about_title: { en: 'AI Studio OSS', zh: 'AI Studio OSS' },
     about_version: { en: 'Version', zh: '版本' },
-    about_description: { 
-        en: 'An all-in-one AI chat assistant deeply integrated with the Gemini ecosystem. Supports multimodal interaction (text/voice/image/video), real-time web search, code execution, long document analysis, and advanced reasoning. Features rich preset scenarios and personalized configurations.', 
-        zh: '一个全能的 AI 聊天助手，深度集成 Gemini 生态。支持多模态交互（文本/语音/图片/视频）、实时联网搜索、代码执行、长文档分析及高级推理功能。内置丰富的预设场景与个性化配置，助您探索 AI 的无限可能。' 
+    about_description: {
+        en: 'A professional, open-source AI workspace designed for productivity. Featuring advanced multi-model integration, secure local data handling, and a refined creative interface.',
+        zh: '专为生产力打造的专业开源 AI 工作区。具备高级多模型集成、安全的本地数据处理能力以及精致的创作界面。'
     },
-    about_view_on_github: { en: 'View on GitHub', zh: '在 GitHub 上查看' },
-    about_logo_alt: { en: 'All Model Chat Logo', zh: 'All Model Chat 标志' },
+    about_logo_alt: { en: 'AI Studio Logo', zh: 'AI Studio 标志' },
 
     // Safety Section
     safety_title: { en: 'Safety Settings', zh: '安全设置' },

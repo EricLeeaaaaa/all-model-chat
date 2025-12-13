@@ -61,7 +61,7 @@ export interface ChatSettings {
 }
 
 export interface AppSettings extends ChatSettings {
- themeId: 'system' | 'onyx' | 'pearl';
+ themeId: 'system' | 'dark' | 'light';
  baseFontSize: number;
  useCustomApiConfig: boolean;
  apiKey: string | null;

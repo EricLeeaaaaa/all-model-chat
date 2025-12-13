@@ -1,6 +1,5 @@
-
 import { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react';
-import { PreloadedMessage, ChatMessage, SavedScenario, SavedChatSession, AppSettings } from '../types';
+import { SavedScenario, SavedChatSession, AppSettings } from '../types';
 import { generateUniqueId, generateSessionTitle, logService, createNewSession } from '../utils/appUtils';
 import { DEFAULT_CHAT_SETTINGS, DEFAULT_SYSTEM_INSTRUCTION } from '../constants/appConstants';
 import { FOP_SYSTEM_PROMPT } from '../constants/specialPrompts';
@@ -215,7 +214,7 @@ Before taking any action (either tool calls *or* responses to the user), you mus
     5.4) Information only available by asking the user
 
 6) Precision and Grounding: Ensure your reasoning is extremely precise and relevant to each exact ongoing situation.
-    6.1) Verify your claims by quoting the exact applicable information (including policies) when referring to them. 
+    6.1) Verify your claims by quoting the exact applicable information (including policies) when referring to them.
 
 7) Completeness: Ensure that all requirements, constraints, options, and preferences are exhaustively incorporated into your plan.
     7.1) Resolve conflicts using the order of importance in #1.
@@ -233,7 +232,7 @@ Before taking any action (either tool calls *or* responses to the user), you mus
 
 const demoScenario: SavedScenario = {
     id: 'demo-scenario-showcase',
-    title: '✨ App Capabilities Demo',
+    title: '✨ AI Studio Capabilities Demo',
     messages: [
         {
             id: 'demo-msg-1',
@@ -243,7 +242,7 @@ const demoScenario: SavedScenario = {
         {
             id: 'demo-msg-2',
             role: 'model',
-            content: `I'd be happy to demonstrate the full capabilities of **All Model Chat**! 🚀
+            content: `I'd be happy to demonstrate the full capabilities of **AI Studio OSS**! 🚀
 
 ### 1. 🎨 Dynamic Visualizations
 I can render complex diagrams directly using **Mermaid** and **Graphviz** engines.
@@ -265,7 +264,7 @@ graph TD
 digraph G {
   rankdir=LR;
   node [style=filled, fillcolor="#e0f2fe", fontname="Arial", shape="box", style="rounded,filled"];
-  
+
   subgraph cluster_0 {
     label = "Frontend";
     style=filled;
@@ -276,10 +275,10 @@ digraph G {
 
   Load_Balancer -> Server_A;
   Load_Balancer -> Server_B;
-  
+
   Server_A -> Database [color="red", style="dashed"];
   Server_B -> Database [color="red", style="dashed"];
-  
+
   Database [shape="cylinder", fillcolor="#fecaca"];
 }
 \`\`\`
@@ -328,9 +327,8 @@ How would you like to proceed?`
 };
 
 const SYSTEM_SCENARIO_IDS = [
-    // FOP, Unrestricted, Pyrite, and Anna have been moved to user scenarios via seeding
-    succinctScenario.id, 
-    socraticScenario.id, 
+    succinctScenario.id,
+    socraticScenario.id,
     formalScenario.id,
     reasonerScenario.id
 ];
@@ -342,78 +340,54 @@ export const usePreloadedScenarios = ({ appSettings, setAppSettings, updateAndPe
         const loadScenarios = async () => {
             try {
                 const storedScenarios = await dbService.getAllScenarios();
-                let scenariosToSet = storedScenarios;
-
-                // 1. Seed Demo scenario
-                const hasSeeded = localStorage.getItem('hasSeededDemoScenario_v2'); 
-                if (!hasSeeded) {
-                    const oldDemoId = 'demo-scenario-showcase';
-                    const filteredStored = storedScenarios.filter(s => s.id !== oldDemoId);
-                    scenariosToSet = [demoScenario, ...filteredStored];
-                    // Flag setting happens after all seeding checks
+                
+                // CLEAN INITIALIZATION LOGIC:
+                // If DB is empty, seed with all defaults.
+                // If DB has data, load it.
+                
+                if (storedScenarios.length === 0) {
+                    logService.info("No scenarios found in DB. Seeding defaults.");
+                    const defaultSet = [
+                        demoScenario,
+                        fopScenario,
+                        unrestrictedScenario,
+                        pyriteScenario,
+                        annaScenario
+                    ];
+                    await dbService.setAllScenarios(defaultSet);
+                    setUserSavedScenarios(defaultSet);
+                } else {
+                    setUserSavedScenarios(storedScenarios);
                 }
-
-                // 2. Seed Jailbreak Scenarios (FOP, Pyrite, Unrestricted) as User Scenarios
-                const hasSeededJailbreaks = localStorage.getItem('hasSeededJailbreaks_v1');
-                if (!hasSeededJailbreaks) {
-                    const jailbreaks = [fopScenario, unrestrictedScenario, pyriteScenario];
-                    // Append if not already present by ID
-                    const newScenarios = jailbreaks.filter(jb => !scenariosToSet.some(s => s.id === jb.id));
-                    if (newScenarios.length > 0) {
-                        scenariosToSet = [...scenariosToSet, ...newScenarios];
-                    }
-                }
-
-                // 3. Seed Anna Scenario (v1 check)
-                const hasSeededAnna = localStorage.getItem('hasSeededAnna_v1');
-                if (!hasSeededAnna) {
-                    const anna = [annaScenario];
-                    const newScenarios = anna.filter(a => !scenariosToSet.some(s => s.id === a.id));
-                    if (newScenarios.length > 0) {
-                        scenariosToSet = [...scenariosToSet, ...newScenarios];
-                    }
-                }
-
-                // Save if any changes were made
-                if (!hasSeeded || !hasSeededJailbreaks || !hasSeededAnna) {
-                    await dbService.setAllScenarios(scenariosToSet);
-                    if (!hasSeeded) localStorage.setItem('hasSeededDemoScenario_v2', 'true');
-                    if (!hasSeededJailbreaks) localStorage.setItem('hasSeededJailbreaks_v1', 'true');
-                    if (!hasSeededAnna) localStorage.setItem('hasSeededAnna_v1', 'true');
-                }
-
-                setUserSavedScenarios(scenariosToSet);
             } catch (error) {
                 logService.error("Error loading preloaded scenarios:", { error });
             }
         };
         loadScenarios();
     }, []);
-    
+
     const savedScenarios = useMemo(() => {
-        // Ensure user-saved scenarios don't conflict with the default IDs
+        // Ensure user-saved scenarios don't conflict with the system IDs (which are always available)
         const filteredUserScenarios = userSavedScenarios.filter(s => !SYSTEM_SCENARIO_IDS.includes(s.id));
         return [
-            // FOP, Unrestricted, Pyrite, Anna are now in filteredUserScenarios
             reasonerScenario,
-            succinctScenario, 
-            socraticScenario, 
-            formalScenario, 
+            succinctScenario,
+            socraticScenario,
+            formalScenario,
             ...filteredUserScenarios
         ];
     }, [userSavedScenarios]);
 
-    const handleSaveAllScenarios = (updatedScenarios: SavedScenario[]) => { 
-        // Filter out the default scenarios so they are not saved to the user's database
+    const handleSaveAllScenarios = (updatedScenarios: SavedScenario[]) => {
         const scenariosToSave = updatedScenarios.filter(s => !SYSTEM_SCENARIO_IDS.includes(s.id));
-        setUserSavedScenarios(scenariosToSave); 
+        setUserSavedScenarios(scenariosToSave);
         dbService.setAllScenarios(scenariosToSave).catch(error => {
             logService.error("Failed to save scenarios to DB", { error });
         });
     };
-    
+
     const handleLoadPreloadedScenario = (scenarioToLoad: SavedScenario) => {
-        const messages: ChatMessage[] = scenarioToLoad.messages.map(pm => ({
+        const messages = scenarioToLoad.messages.map(pm => ({
             ...pm,
             id: generateUniqueId(),
             timestamp: new Date()
@@ -421,22 +395,20 @@ export const usePreloadedScenarios = ({ appSettings, setAppSettings, updateAndPe
 
         const systemInstruction = scenarioToLoad.systemInstruction ?? DEFAULT_SYSTEM_INSTRUCTION;
 
-        // Create a new session from scratch with the scenario's data
         const sessionSettings = {
-            ...DEFAULT_CHAT_SETTINGS, // Start with defaults
-            ...appSettings,          // Layer on current app settings
-            systemInstruction,       // Override with scenario's system instruction
+            ...DEFAULT_CHAT_SETTINGS,
+            ...appSettings,
+            systemInstruction,
         };
 
         const title = scenarioToLoad.title || generateSessionTitle(messages) || 'New Chat';
-        
+
         const newSession = createNewSession(sessionSettings, messages, title);
 
         updateAndPersistSessions(prev => [newSession, ...prev.filter(s => s.messages.length > 0)]);
         setActiveSessionId(newSession.id);
         dbService.setActiveSessionId(newSession.id);
 
-        // Also update the global/default system prompt in app settings
         setAppSettings(prev => ({
             ...prev,
             systemInstruction,

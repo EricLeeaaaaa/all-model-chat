@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { AppSettings, ModelOption } from '../../types';
 import { X } from 'lucide-react';
-import { DEFAULT_APP_SETTINGS, THINKING_BUDGET_RANGES } from '../../constants/appConstants';
+import { DEFAULT_APP_SETTINGS, THINKING_BUDGET_RANGES, SETTINGS_TAB_STORAGE_KEY } from '../../constants/appConstants';
 import { Theme } from '../../constants/themeConstants';
 import { translations, logService, cacheModelSettings, getCachedModelSettings } from '../../utils/appUtils';
 import { ApiConfigSection } from './ApiConfigSection';
@@ -10,7 +10,6 @@ import { AppearanceSection } from './AppearanceSection';
 import { ChatBehaviorSection } from './ChatBehaviorSection';
 import { DataManagementSection } from './DataManagementSection';
 import { ShortcutsSection } from './ShortcutsSection';
-import { AboutSection } from './AboutSection';
 import { Modal } from '../shared/Modal';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 import { IconInterface, IconModel, IconApiKey, IconData, IconAbout, IconKeyboard } from '../icons/CustomIcons';
@@ -40,7 +39,6 @@ interface SettingsModalProps {
 
 type SettingsTab = 'interface' | 'model' | 'account' | 'data' | 'shortcuts' | 'about';
 
-const SETTINGS_TAB_STORAGE_KEY = 'chatSettingsLastTab';
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen, onClose, currentSettings, availableModels, availableThemes, 
@@ -192,8 +190,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'interface' as SettingsTab, labelKey: 'settingsTabInterface', icon: IconInterface },
     { id: 'account' as SettingsTab, labelKey: 'settingsTabAccount', icon: IconApiKey },
     { id: 'data' as SettingsTab, labelKey: 'settingsTabData', icon: IconData },
-    { id: 'shortcuts' as SettingsTab, labelKey: 'settingsTabShortcuts', icon: IconKeyboard },
-    { id: 'about' as SettingsTab, labelKey: 'settingsTabAbout', icon: IconAbout },
+    { id: 'shortcuts' as SettingsTab, labelKey: 'settingsTabShortcuts', icon: IconKeyboard }
   ], []);
 
   const renderTabContent = () => {
@@ -296,7 +293,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
             )}
             {activeTab === 'shortcuts' && ( <div className={animClass}><ShortcutsSection t={t} /></div> )}
-            {activeTab === 'about' && ( <div className={animClass}><AboutSection t={t} /></div> )}
         </div>
       );
   }

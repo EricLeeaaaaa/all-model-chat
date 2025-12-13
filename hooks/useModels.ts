@@ -1,9 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { ModelOption } from '../types';
-import { sortModels, getDefaultModelOptions } from '../utils/appUtils';
-
-const CUSTOM_MODELS_KEY = 'custom_model_list_v1';
+import { getDefaultModelOptions } from '../utils/appUtils';
+import { CUSTOM_MODELS_KEY } from '../constants/appConstants';
 
 export const useModels = () => {
     // Initialize with persisted models or defaults
@@ -18,13 +16,12 @@ export const useModels = () => {
         }
         return getDefaultModelOptions();
     });
-    
+
     const setApiModels = useCallback((models: ModelOption[]) => {
         setApiModelsState(models);
         localStorage.setItem(CUSTOM_MODELS_KEY, JSON.stringify(models));
     }, []);
 
-    // Currently loading is instantaneous for local storage, but structure prepared for API fetch
     const isModelsLoading = false;
     const modelsLoadingError = null;
 

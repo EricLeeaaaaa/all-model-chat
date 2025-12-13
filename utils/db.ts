@@ -1,9 +1,8 @@
-
 import { AppSettings, ChatGroup, SavedChatSession, SavedScenario } from '../types';
 import { LogEntry } from '../services/logService';
 
-const DB_NAME = 'AllModelChatDB';
-const DB_VERSION = 2; // Incremented for logs support
+const DB_NAME = 'AIStudioDB';
+const DB_VERSION = 2;
 
 const SESSIONS_STORE = 'sessions';
 const GROUPS_STORE = 'groups';
@@ -26,7 +25,6 @@ const getDb = (): Promise<IDBDatabase> => {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         
-        // V1 Stores
         if (!db.objectStoreNames.contains(SESSIONS_STORE)) {
           db.createObjectStore(SESSIONS_STORE, { keyPath: 'id' });
         }
@@ -39,8 +37,6 @@ const getDb = (): Promise<IDBDatabase> => {
         if (!db.objectStoreNames.contains(KEY_VALUE_STORE)) {
           db.createObjectStore(KEY_VALUE_STORE);
         }
-
-        // V2 Store: Logs
         if (!db.objectStoreNames.contains(LOGS_STORE)) {
           const logStore = db.createObjectStore(LOGS_STORE, { keyPath: 'id', autoIncrement: true });
           logStore.createIndex('timestamp', 'timestamp', { unique: false });
@@ -94,8 +90,6 @@ async function setKeyValue<T>(key: string, value: T): Promise<void> {
   return transactionToPromise(tx);
 }
 
-// --- Log Specific Methods ---
-
 async function addLogs(logs: LogEntry[]): Promise<void> {
   const db = await getDb();
   const tx = db.transaction(LOGS_STORE, 'readwrite');
@@ -110,8 +104,6 @@ async function getLogs(limit = 500, offset = 0): Promise<LogEntry[]> {
     const tx = db.transaction(LOGS_STORE, 'readonly');
     const store = tx.objectStore(LOGS_STORE);
     const index = store.index('timestamp');
-    
-    // Open cursor in reverse (prev) to get newest logs first
     const request = index.openCursor(null, 'prev');
     const results: LogEntry[] = [];
     let hasAdvanced = false;
@@ -122,13 +114,11 @@ async function getLogs(limit = 500, offset = 0): Promise<LogEntry[]> {
         resolve(results);
         return;
       }
-
       if (offset > 0 && !hasAdvanced) {
         hasAdvanced = true;
         cursor.advance(offset);
         return;
       }
-
       results.push(cursor.value);
       if (results.length < limit) {
         cursor.continue();
@@ -153,10 +143,7 @@ async function pruneLogs(olderThan: number): Promise<void> {
     const store = tx.objectStore(LOGS_STORE);
     const index = store.index('timestamp');
     const range = IDBKeyRange.upperBound(new Date(olderThan));
-    
-    // Efficient delete via range
     const request = index.openKeyCursor(range);
-    
     request.onsuccess = () => {
         const cursor = request.result;
         if (cursor) {
@@ -164,11 +151,8 @@ async function pruneLogs(olderThan: number): Promise<void> {
             cursor.continue();
         }
     };
-    
     return transactionToPromise(tx);
 }
-
-// --- General ---
 
 async function clearAllData(): Promise<void> {
   const db = await getDb();
@@ -191,7 +175,6 @@ export const dbService = {
   setAppSettings: (settings: AppSettings) => setKeyValue<AppSettings>('appSettings', settings),
   getActiveSessionId: () => getKeyValue<string | null>('activeSessionId'),
   setActiveSessionId: (id: string | null) => setKeyValue<string | null>('activeSessionId', id),
-  // Log specific
   addLogs,
   getLogs,
   clearLogs,

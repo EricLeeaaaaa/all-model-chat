@@ -25,8 +25,8 @@ export interface ThemeColors {
   textPrimary: string;
   textSecondary: string;
   textTertiary: string;
-  textAccent: string; 
-  textDanger: string; 
+  textAccent: string;
+  textDanger: string;
   textLink: string;
   textCode: string;
   bgUserMessageText: string;
@@ -47,14 +47,14 @@ export interface ThemeColors {
   iconUser: string;
   iconModel: string;
   iconError: string;
-  iconThought: string; 
-  iconSettings: string; 
-  iconClearChat: string; 
-  iconSend: string; 
-  iconAttach: string; 
-  iconStop: string; 
-  iconEdit: string; 
-  iconHistory: string; 
+  iconThought: string;
+  iconSettings: string;
+  iconClearChat: string;
+  iconSend: string;
+  iconAttach: string;
+  iconStop: string;
+  iconEdit: string;
+  iconHistory: string;
 }
 
 export interface Theme {
@@ -63,13 +63,13 @@ export interface Theme {
   colors: ThemeColors;
 }
 
-export const ONYX_THEME_COLORS: ThemeColors = {
+export const DARK_THEME_COLORS: ThemeColors = {
   // Backgrounds
   bgPrimary: '#09090b', // Zinc 950 - Main Content
   bgSecondary: '#000000', // True Black - Sidebar/Header (Framing effect)
   bgTertiary: '#18181b', // Zinc 900 - Hover states
-  bgAccent: '#3b82f6', // Blue 500 - Vibrant Accent
-  bgAccentHover: '#2563eb', // Blue 600
+  bgAccent: '#1E90FF', // 新主色 - Dodger Blue
+  bgAccentHover: '#187bcd', // 主色 Hover - 稍暗版本
   bgDanger: '#7f1d1d', // Red 900
   bgDangerHover: '#991b1b',
   bgInput: '#121214', // Zinc 925 - Very deep input area
@@ -91,7 +91,7 @@ export const ONYX_THEME_COLORS: ThemeColors = {
   textTertiary: '#52525b', // Zinc 600
   textAccent: '#ffffff',
   textDanger: '#fca5a5', // Light Red
-  textLink: '#38bdf8', // Sky 400
+  textLink: '#1E90FF', // 新主色 - 与 bgAccent 保持一致
   textCode: '#e4e4e7', // Zinc 200
   bgUserMessageText: '#ffffff',
   bgModelMessageText: '#e4e4e7',
@@ -100,7 +100,7 @@ export const ONYX_THEME_COLORS: ThemeColors = {
   // Borders
   borderPrimary: '#18181b', // Zinc 900 - blending more with tertiary
   borderSecondary: '#27272a', // Zinc 800 - Slightly lighter for visible borders
-  borderFocus: '#3b82f6', // Blue 500
+  borderFocus: '#1E90FF', // 新主色 - Focus 边框
 
   // Scrollbar
   scrollbarThumb: '#27272a',
@@ -120,13 +120,13 @@ export const ONYX_THEME_COLORS: ThemeColors = {
   iconHistory: '#a1a1aa',
 };
 
-export const PEARL_THEME_COLORS: ThemeColors = {
+export const LIGHT_THEME_COLORS: ThemeColors = {
   // Backgrounds
   bgPrimary: '#FFFFFF',
   bgSecondary: '#f9f9f9',
   bgTertiary: '#ECECF1',
-  bgAccent: '#40414F',
-  bgAccentHover: '#202123',
+  bgAccent: '#1E90FF',
+  bgAccentHover: '#187bcd',
   bgDanger: '#DF3434',
   bgDangerHover: '#B32929',
   bgInput: '#FFFFFF',
@@ -148,10 +148,10 @@ export const PEARL_THEME_COLORS: ThemeColors = {
   textTertiary: '#666666', // Dark Gray (was #333333, lightened slightly for placeholder distinction)
   textAccent: '#FFFFFF',
   textDanger: '#DF3434', // Red (was #FFFFFF, which is invisible on light backgrounds)
-  textLink: '#2563eb', // Blue 600 (was #000000)
+  textLink: '#1E90FF', // 新主色 - 与暗色主题保持一致
   textCode: '#000000', // Black (was #40414f)
-  bgUserMessageText: '#000000', 
-  bgModelMessageText: '#000000', 
+  bgUserMessageText: '#000000',
+  bgModelMessageText: '#000000',
   bgErrorMessageText: '#DF3434',
 
   // Borders
@@ -178,8 +178,8 @@ export const PEARL_THEME_COLORS: ThemeColors = {
 };
 
 export const AVAILABLE_THEMES: Theme[] = [
-  { id: 'onyx', name: 'Onyx (Dark)', colors: ONYX_THEME_COLORS },
-  { id: 'pearl', name: 'Pearl (Light)', colors: PEARL_THEME_COLORS },
+  { id: 'dark', name: 'Dark', colors: DARK_THEME_COLORS },
+  { id: 'light', name: 'Light', colors: LIGHT_THEME_COLORS },
 ];
 
-export const DEFAULT_THEME_ID = 'pearl';
+export const DEFAULT_THEME_ID = 'light';

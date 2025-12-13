@@ -4,7 +4,7 @@ import { AppSettings, ChatMessage, SavedChatSession, UploadedFile, ChatSettings 
 import { useApiErrorHandler } from './useApiErrorHandler';
 import { geminiServiceInstance } from '../services/geminiService';
 import { generateUniqueId, generateSessionTitle, pcmBase64ToWavUrl, showNotification, base64ToBlob, createNewSession } from '../utils/appUtils';
-import { APP_LOGO_SVG_DATA_URI } from '../constants/appConstants';
+import { APP_LOGO_URI } from '../constants/appConstants';
 import { DEFAULT_CHAT_SETTINGS } from '../constants/appConstants';
 
 type SessionsUpdater = (updater: (prev: SavedChatSession[]) => SavedChatSession[]) => void;
@@ -87,7 +87,7 @@ export const useTtsImagenSender = ({
                 updateAndPersistSessions(p => p.map(s => s.id === finalSessionId ? { ...s, messages: s.messages.map(m => m.id === modelMessageId ? { ...m, isLoading: false, content: text, audioSrc: wavUrl, generationEndTime: new Date() } : m) } : s));
                 
                 if (appSettings.isCompletionNotificationEnabled && document.hidden) {
-                    showNotification('Audio Ready', { body: 'Text-to-speech audio has been generated.', icon: APP_LOGO_SVG_DATA_URI });
+                    showNotification('Audio Ready', { body: 'Text-to-speech audio has been generated.', icon: APP_LOGO_URI });
                 }
 
             } else { // Imagen
@@ -120,7 +120,7 @@ export const useTtsImagenSender = ({
                 updateAndPersistSessions(p => p.map(s => s.id === finalSessionId ? { ...s, messages: s.messages.map(m => m.id === modelMessageId ? { ...m, isLoading: false, content: `Generated ${generatedFiles.length} image(s) for: "${text}"`, files: generatedFiles, generationEndTime: new Date() } : m) } : s));
 
                 if (appSettings.isCompletionNotificationEnabled && document.hidden) {
-                    showNotification('Image Ready', { body: 'Your image has been generated.', icon: APP_LOGO_SVG_DATA_URI });
+                    showNotification('Image Ready', { body: 'Your image has been generated.', icon: APP_LOGO_URI });
                 }
             }
         } catch (error) {

@@ -11,7 +11,6 @@ export const scenariosTranslations = {
     scenarios_feedback_saved: { en: 'Scenario saved!', zh: '场景已保存！' },
     scenarios_feedback_empty: { en: 'Scenario is empty. Add some messages first.', zh: '场景为空。请先添加一些消息。' },
     scenarios_feedback_loaded: { en: 'Current scenario loaded into chat!', zh: '当前场景已加载到聊天中！' },
-    scenarios_feedback_fopLoaded: { en: 'FOP scenario loaded!', zh: 'FOP 场景已加载！' },
     scenarios_feedback_cleared: { en: 'Scenario cleared.', zh: '场景已清除。' },
     scenarios_feedback_emptyExport: { en: 'Scenario is empty. Nothing to export.', zh: '场景为空，无可导出内容。' },
     scenarios_feedback_exported: { en: 'Scenario exported!', zh: '场景已导出！' },
@@ -33,7 +32,6 @@ export const scenariosTranslations = {
     scenarios_empty_list: { en: 'No messages in this scenario yet. Add some above!', zh: '此场景中尚无消息。请在上方添加！' },
     scenarios_import_title: { en: 'Import scenario from JSON file', zh: '从 JSON 文件导入场景' },
     scenarios_export_title: { en: 'Export current scenario to JSON file', zh: '将当前场景导出为 JSON 文件' },
-    scenarios_fop_button: { en: 'Load FOP Scenario', zh: '加载 FOP 场景' },
     scenarios_load_button: { en: 'Load', zh: '加载' },
     scenarios_load_title: { en: 'Load scenario into chat', zh: '将场景加载到聊天中' },
     scenarios_save_button: { en: 'Save Scenario', zh: '保存场景' },
@@ -45,7 +43,7 @@ export const scenariosTranslations = {
     scenarios_duplicate_title: { en: 'Duplicate scenario', zh: '创建副本' },
     scenarios_export_single_title: { en: 'Export scenario', zh: '导出场景' },
     scenarios_view_title: { en: 'View scenario', zh: '查看场景' },
-    
+
     // New UI translations
     scenarios_create_button: { en: 'Add', zh: '添加' },
     scenarios_import_button: { en: 'Import', zh: '导入' },
@@ -59,7 +57,7 @@ export const scenariosTranslations = {
     scenarios_optional: { en: '(Optional)', zh: '(可选)' },
     scenarios_role_user: { en: 'User', zh: '用户' },
     scenarios_role_model: { en: 'Model', zh: '模型' },
-    
+
     // Tabs
     scenarios_tab_all: { en: 'All Scenarios', zh: '全部' },
     scenarios_tab_mine: { en: 'My Scenarios', zh: '我的场景' },

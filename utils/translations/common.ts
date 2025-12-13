@@ -1,5 +1,7 @@
-
 export const commonTranslations = {
+    app_name_full: { en: 'AI Studio OSS', zh: 'AI Studio OSS' },
+    app_name_short: { en: 'AI Studio', zh: 'AI Studio' },
+    app_edition: { en: 'OSS Edition', zh: '开源版' },
     cancel: { en: 'Cancel', zh: '取消' },
     save: { en: 'Save', zh: '保存' },
     add: { en: 'Add', zh: '添加' },

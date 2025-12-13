@@ -1,4 +1,3 @@
-
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { AppSettings, ChatMessage, SavedChatSession, UploadedFile, ChatSettings, ChatGroup, InputCommand } from '../types';
 import { DEFAULT_CHAT_SETTINGS } from '../constants/appConstants';
@@ -34,15 +33,12 @@ const rehydrateSessionFiles = (session: SavedChatSession): SavedChatSession => {
         if (!message.files?.length) return message;
 
         const newFiles = message.files.map(file => {
-            // Check if it's an image that was stored locally (has rawFile)
             if (SUPPORTED_IMAGE_MIME_TYPES.includes(file.type) && file.rawFile) {
                 try {
-                    // Create a new blob URL. The browser will handle the old invalid one on page unload.
                     const dataUrl = URL.createObjectURL(file.rawFile);
                     return { ...file, dataUrl: dataUrl };
                 } catch (error) {
                     logService.error("Failed to create object URL for file on load", { fileId: file.id, error });
-                    // Keep the file but mark that preview failed
                     return { ...file, dataUrl: undefined, error: "Preview failed to load" };
                 }
             }
@@ -79,12 +75,13 @@ export const useChatHistory = ({
         logService.info('Starting new chat session.');
         userScrolledUp.current = false;
         
-        // Save current files to draft before switching
         if (activeSessionId) {
             fileDraftsRef.current[activeSessionId] = selectedFiles;
         }
 
         let settingsForNewChat: ChatSettings = { ...DEFAULT_CHAT_SETTINGS, ...appSettings };
+        
+        // Inherit settings from active chat if available for continuity
         if (activeChat) {
             settingsForNewChat = {
                 ...settingsForNewChat,
@@ -104,10 +101,7 @@ export const useChatHistory = ({
         setActiveSessionId(newSession.id);
         dbService.setActiveSessionId(newSession.id);
 
-        // Don't force clear text (handled by localStorage draft for new ID)
-        // Clear files for new chat
         setSelectedFiles([]);
-        
         setEditingMessageId(null);
         
         setTimeout(() => {
@@ -119,7 +113,6 @@ export const useChatHistory = ({
         logService.info(`Loading chat session: ${sessionId}`);
         userScrolledUp.current = false;
         
-        // Save current files to draft before switching
         if (activeSessionId) {
             fileDraftsRef.current[activeSessionId] = selectedFiles;
         }
@@ -129,12 +122,8 @@ export const useChatHistory = ({
             setActiveSessionId(sessionToLoad.id);
             dbService.setActiveSessionId(sessionId);
             
-            // Restore files from draft for the target session, or empty if none
             const draftFiles = fileDraftsRef.current[sessionId] || [];
             setSelectedFiles(draftFiles);
-            
-            // Don't force clear text command (handled by localStorage draft)
-            // setCommandedInput({ text: '', id: Date.now() });
             
             setEditingMessageId(null);
             setTimeout(() => {
@@ -148,7 +137,7 @@ export const useChatHistory = ({
 
     const loadInitialData = useCallback(async () => {
         try {
-            logService.info('Attempting to load chat history from IndexedDB.');
+            logService.info('Loading chat history from DB.');
             const [sessions, groups, storedActiveId] = await Promise.all([
                 dbService.getAllSessions(),
                 dbService.getAllGroups(),
@@ -190,7 +179,6 @@ export const useChatHistory = ({
              }
              return prev.filter(s => s.id !== sessionId);
         });
-        // The logic to switch to a new active session is now handled declaratively in useChat.ts's useEffect.
     }, [updateAndPersistSessions, activeJobs]);
     
     const handleRenameSession = useCallback((sessionId: string, newTitle: string) => {
@@ -216,11 +204,9 @@ export const useChatHistory = ({
 
             const newSession = createNewSession(
                 sessionToDuplicate.settings,
-                // We recreate messages with new IDs to prevent key collisions during rendering or updates
-                // while preserving the content.
                 sessionToDuplicate.messages.map(m => ({
                     ...m,
-                    id: `chat-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, // Inline simple ID or use generateUniqueId
+                    id: `chat-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
                     isLoading: false,
                     generationStartTime: undefined,
                     generationEndTime: undefined
@@ -264,7 +250,6 @@ export const useChatHistory = ({
     }, [updateAndPersistGroups]);
 
     const clearAllHistory = useCallback(() => {
-        // Confirm dialog moved to UI component
         logService.warn('User clearing all chat history.');
         activeJobs.current.forEach(controller => controller.abort());
         activeJobs.current.clear();
@@ -275,7 +260,6 @@ export const useChatHistory = ({
     }, [setSavedSessions, setSavedGroups, startNewChat, activeJobs]);
     
     const clearCacheAndReload = useCallback(() => {
-        // Confirm dialog moved to UI component
         logService.warn('User clearing all application cache and settings.');
         activeJobs.current.forEach(controller => controller.abort());
         activeJobs.current.clear();

@@ -4,7 +4,7 @@ import { AppSettings, ChatMessage, SavedChatSession, ChatSettings as IndividualC
 import { Part, UsageMetadata } from '@google/genai';
 import { useApiErrorHandler } from './useApiErrorHandler';
 import { generateUniqueId, logService, showNotification, getTranslator, base64ToBlobUrl, getExtensionFromMimeType } from '../utils/appUtils';
-import { APP_LOGO_SVG_DATA_URI } from '../constants/appConstants';
+import { APP_LOGO_URI } from '../constants/appConstants';
 
 type SessionsUpdater = (updater: (prev: SavedChatSession[]) => SavedChatSession[], options?: { persist?: boolean }) => void;
 
@@ -180,10 +180,10 @@ export const useChatStreamHandler = ({
                 if (appSettings.isCompletionNotificationEnabled && completedMessageForNotification && document.hidden) {
                     const notificationBody = (completedMessageForNotification.content || "Media or tool response received").substring(0, 150) + (completedMessageForNotification.content && completedMessageForNotification.content.length > 150 ? '...' : '');
                     showNotification(
-                        'Response Ready', 
+                        'Response Ready',
                         {
                             body: notificationBody,
-                            icon: APP_LOGO_SVG_DATA_URI,
+                            icon: APP_LOGO_URI,
                         }
                     );
                 }

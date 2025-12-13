@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { AppSettings } from '../types';
 import { DEFAULT_APP_SETTINGS, DEFAULT_FILES_API_CONFIG } from '../constants/appConstants';
@@ -16,9 +15,8 @@ export const useAppSettings = () => {
                 const storedSettings = await dbService.getAppSettings();
                 if (storedSettings) {
                     const newSettings = { ...DEFAULT_APP_SETTINGS, ...storedSettings };
-                    
+
                     if (storedSettings.filesApiConfig) {
-                        // Ensure new keys are present if structure updated
                         newSettings.filesApiConfig = { ...DEFAULT_FILES_API_CONFIG, ...storedSettings.filesApiConfig };
                     }
 
@@ -32,33 +30,32 @@ export const useAppSettings = () => {
         };
         loadSettings();
     }, []);
-    
+
     const [language, setLanguage] = useState<'en' | 'zh'>('en');
 
-    const [resolvedThemeId, setResolvedThemeId] = useState<'onyx' | 'pearl'>(() => {
+    const [resolvedThemeId, setResolvedThemeId] = useState<'dark' | 'light'>(() => {
         if (appSettings.themeId === 'system') {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'onyx' : 'pearl';
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-        return appSettings.themeId as 'onyx' | 'pearl';
+        return (appSettings.themeId === 'dark' || appSettings.themeId === 'light') ? appSettings.themeId : 'light';
     });
 
     useEffect(() => {
         if (appSettings.themeId === 'system') {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            const updateTheme = () => setResolvedThemeId(mediaQuery.matches ? 'onyx' : 'pearl');
-            
+            const updateTheme = () => setResolvedThemeId(mediaQuery.matches ? 'dark' : 'light');
+
             updateTheme();
             mediaQuery.addEventListener('change', updateTheme);
             return () => mediaQuery.removeEventListener('change', updateTheme);
         } else {
-            setResolvedThemeId(appSettings.themeId as 'onyx' | 'pearl');
+            setResolvedThemeId(appSettings.themeId as 'dark' | 'light');
         }
     }, [appSettings.themeId]);
 
     const currentTheme = AVAILABLE_THEMES.find(t => t.id === resolvedThemeId) || AVAILABLE_THEMES.find(t => t.id === DEFAULT_THEME_ID)!;
 
     useEffect(() => {
-        // Only save settings after they've been loaded to prevent overwriting stored settings with defaults.
         if (isSettingsLoaded) {
             dbService.setAppSettings(appSettings).catch(e => logService.error("Failed to save settings", { error: e }));
         }

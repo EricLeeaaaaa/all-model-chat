@@ -52,7 +52,7 @@ export const usePictureInPicture = (setIsHistorySidebarOpen: (value: boolean | (
                 pipWin.document.head.appendChild(node.cloneNode(true));
             });
             
-            pipWin.document.title = "All Model Chat - PiP";
+            pipWin.document.title = "AI Studio - PiP";
             pipWin.document.body.className = document.body.className;
             pipWin.document.body.style.margin = '0';
             pipWin.document.body.style.overflow = 'hidden';

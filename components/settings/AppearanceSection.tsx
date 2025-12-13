@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ChevronDown, Check, Info, Type, CloudUpload } from 'lucide-react';
 import { translations } from '../../utils/appUtils';
@@ -8,8 +7,8 @@ import { useClickOutside } from '../../hooks/useClickOutside';
 import { FilesApiConfig } from '../../types';
 
 interface AppearanceSectionProps {
-  themeId: 'system' | 'onyx' | 'pearl';
-  setThemeId: (value: 'system' | 'onyx' | 'pearl') => void;
+  themeId: 'system' | 'dark' | 'light';
+  setThemeId: (value: 'system' | 'dark' | 'light') => void;
   language: 'en' | 'zh' | 'system';
   setLanguage: (value: 'en' | 'zh' | 'system') => void;
   isCompletionNotificationEnabled: boolean;
@@ -36,7 +35,6 @@ interface AppearanceSectionProps {
   setAutoFullscreenHtml: (value: boolean) => void;
   showWelcomeSuggestions: boolean;
   setShowWelcomeSuggestions: (value: boolean) => void;
-  // Updated prop for file strategy
   filesApiConfig: FilesApiConfig;
   setFilesApiConfig: (value: FilesApiConfig) => void;
   t: (key: keyof typeof translations) => string;
@@ -83,10 +81,10 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
 
   useClickOutside(languageDropdownRef, () => setIsLanguageDropdownOpen(false), isLanguageDropdownOpen);
 
-  const themeOptions: { id: 'system' | 'onyx' | 'pearl'; labelKey: keyof typeof translations; icon: React.ReactNode }[] = [
+  const themeOptions: { id: 'system' | 'dark' | 'light'; labelKey: keyof typeof translations; icon: React.ReactNode }[] = [
     { id: 'system', labelKey: 'settingsThemeSystem', icon: <IconThemeSystem size={16} strokeWidth={1.5} /> },
-    { id: 'onyx', labelKey: 'settingsThemeDark', icon: <IconThemeDark size={16} strokeWidth={1.5} /> },
-    { id: 'pearl', labelKey: 'settingsThemeLight', icon: <IconThemeLight size={16} strokeWidth={1.5} /> },
+    { id: 'dark', labelKey: 'settingsThemeDark', icon: <IconThemeDark size={16} strokeWidth={1.5} /> },
+    { id: 'light', labelKey: 'settingsThemeLight', icon: <IconThemeLight size={16} strokeWidth={1.5} /> },
   ];
 
   const languageOptions: { id: 'system' | 'en' | 'zh'; label: string; }[] = [
@@ -233,4 +231,3 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
     </div>
   );
 };
-    
