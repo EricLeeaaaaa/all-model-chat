@@ -61,6 +61,7 @@ export const settingsTranslations = {
     settingsInstallApp_aria: { en: 'Install Progressive Web App', zh: '安装渐进式网络应用' },
     settingsInstallApp_available_title: { en: 'Install Progressive Web App', zh: '安装渐进式网络应用' },
     settingsInstallApp_unavailable_title: { en: 'App is already installed or not supported by your browser.', zh: '应用已安装或浏览器不支持安装。' },
+    settingsInstallApp_dev_only: { en: 'PWA installation unavailable in development. Please build production version and access via HTTPS.', zh: '开发环境中不支持 PWA 安装。请构建生产版本并通过 HTTPS 访问。' },
     settingsImportConfig: { en: 'Import Settings', zh: '导入设置' },
     settingsImportConfig_aria: { en: 'Import settings from a JSON file', zh: '从 JSON 文件导入设置' },
     settingsExportSettingsOnly: { en: 'Export Settings', zh: '导出设置' },

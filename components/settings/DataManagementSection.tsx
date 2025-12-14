@@ -72,6 +72,9 @@ export const DataManagementSection: React.FC<DataManagementSectionProps> = ({
   const historyImportRef = useRef<HTMLInputElement>(null);
   const scenariosImportRef = useRef<HTMLInputElement>(null);
 
+  const isDevMode = typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.port !== '');
+
   const btnClass = "px-3 py-1.5 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--theme-bg-secondary)] border flex items-center gap-1.5";
   const outlineBtnClass = `${btnClass} bg-transparent border-[var(--theme-border-secondary)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)] hover:text-[var(--theme-text-primary)]`;
   // Updated white button class for Danger Zone
@@ -104,7 +107,7 @@ export const DataManagementSection: React.FC<DataManagementSectionProps> = ({
                     <Trash2 size={12} strokeWidth={1.5} /> {t('settingsClearLogs')}
                 </button>
               </ActionRow>
-              <ActionRow label={t('settingsInstallApp')} description={!isInstallable ? t('settingsInstallApp_unavailable_title') : undefined}>
+              <ActionRow label={t('settingsInstallApp')} description={!isInstallable ? (isDevMode ? t('settingsInstallApp_dev_only') : t('settingsInstallApp_unavailable_title')) : undefined}>
                 <button onClick={onInstallPwa} disabled={!isInstallable} className={`${outlineBtnClass} disabled:opacity-50 disabled:cursor-not-allowed`}>{t('settingsInstallApp')}</button>
               </ActionRow>
           </DataCard>
