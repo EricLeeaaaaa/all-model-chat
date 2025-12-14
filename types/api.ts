@@ -1,5 +1,5 @@
 
-import { Part, UsageMetadata, File as GeminiFile, ChatHistoryItem } from "@google/genai";
+import { Part, UsageMetadata, File as GeminiFile, Content } from "@google/genai";
 import { ModelOption } from './settings';
 
 export interface GeminiService {
@@ -17,7 +17,7 @@ export interface GeminiService {
   sendMessageStream: (
     apiKey: string,
     modelId: string,
-    history: ChatHistoryItem[],
+    history: Content[],
     parts: Part[],
     config: any,
     abortSignal: AbortSignal,
@@ -30,7 +30,7 @@ export interface GeminiService {
   sendMessageNonStream: (
     apiKey: string,
     modelId: string,
-    history: ChatHistoryItem[],
+    history: Content[],
     parts: Part[],
     config: any,
     abortSignal: AbortSignal,
@@ -44,7 +44,7 @@ export interface GeminiService {
   translateText(apiKey: string, text: string, targetLanguage?: string): Promise<string>;
   generateTitle(apiKey: string, userContent: string, modelContent: string, language: 'en' | 'zh'): Promise<string>;
   generateSuggestions(apiKey: string, userContent: string, modelContent: string, language: 'en' | 'zh'): Promise<string[]>;
-  editImage: (apiKey: string, modelId: string, history: ChatHistoryItem[], parts: Part[], abortSignal: AbortSignal, aspectRatio?: string, imageSize?: string) => Promise<Part[]>;
+  editImage: (apiKey: string, modelId: string, history: Content[], parts: Part[], abortSignal: AbortSignal, aspectRatio?: string, imageSize?: string) => Promise<Part[]>;
   countTokens: (apiKey: string, modelId: string, parts: Part[]) => Promise<number>;
 }
 

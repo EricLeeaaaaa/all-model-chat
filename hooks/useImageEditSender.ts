@@ -86,12 +86,10 @@ export const useImageEditSender = ({
         activeJobs.current.set(generationId, newAbortController);
 
         try {
-            // For image edit, we typically don't apply custom resolution logic yet as it's a specific endpoint/task,
-            // but we can pass the modelId anyway.
             const { contentParts: promptParts } = await buildContentParts(text, imageFiles, currentChatSettings.modelId);
             const historyForApi = await createChatHistoryForApi(messages);
             
-            const callApi = () => geminiServiceInstance.editImage(keyToUse, currentChatSettings.modelId, historyForApi, promptParts, newAbortController.signal, aspectRatio, imageSize);
+            const callApi = () => geminiServiceInstance.editImage(keyToUse, currentChatSettings.modelId, historyForApi, promptParts as any[], newAbortController.signal, aspectRatio, imageSize);
 
             const apiCalls = appSettings.generateQuadImages ? [callApi(), callApi(), callApi(), callApi()] : [callApi()];
             const results = await Promise.allSettled(apiCalls);
@@ -118,13 +116,13 @@ export const useImageEditSender = ({
                             successfulImageCount++;
                             const { mimeType, data } = part.inlineData;
                             const name = `edited-image-${index + 1}.png`;
-                            const blob = base64ToBlob(data, mimeType);
-                            const file = new File([blob], name, { type: mimeType });
+                            const blob = base64ToBlob(data || '', mimeType || 'image/png');
+                            const file = new File([blob], name, { type: mimeType || 'image/png' });
                             const dataUrl = URL.createObjectURL(file);
                             combinedFiles.push({
                                 id: generateUniqueId(),
                                 name,
-                                type: mimeType,
+                                type: mimeType || 'image/png',
                                 size: file.size,
                                 dataUrl,
                                 rawFile: file,

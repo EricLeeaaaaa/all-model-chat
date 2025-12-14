@@ -5,7 +5,7 @@ import { AttachmentAction } from '../components/chat/input/AttachmentMenu';
 interface UseChatInputModalsProps {
   onProcessFiles: (files: File[]) => Promise<void>;
   justInitiatedFileOpRef: React.MutableRefObject<boolean>;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
 export const useChatInputModals = ({
@@ -67,7 +67,7 @@ export const useChatInputModals = ({
         // @ts-ignore - ImageCapture is not in all TS libs yet
         if (typeof ImageCapture !== 'undefined') {
              // @ts-ignore
-            const imageCapture = new ImageCapture(track);
+            const imageCapture = new ImageCapture(track) as any;
             const bitmap = await imageCapture.grabFrame();
             const canvas = document.createElement('canvas');
             canvas.width = bitmap.width;

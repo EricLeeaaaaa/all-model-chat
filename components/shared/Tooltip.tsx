@@ -40,13 +40,13 @@ export const Select: React.FC<SelectProps> = ({ id, label, children, labelConten
             if (React.isValidElement(child) && child.type === 'option') {
                 const props = child.props as React.OptionHTMLAttributes<HTMLOptionElement>;
                 return {
-                    value: String(props.value),
-                    label: props.children,
-                    disabled: props.disabled
+                    value: String(props.value || ''),
+                    label: props.children as React.ReactNode,
+                    disabled: !!props.disabled
                 };
             }
             return null;
-        }).filter((opt): opt is { value: string, label: React.ReactNode, disabled?: boolean } => opt !== null);
+        }).filter((opt): opt is { value: string, label: React.ReactNode, disabled: boolean } => opt !== null);
     }, [children]);
 
     const selectedOption = options.find(opt => String(opt.value) === String(value));

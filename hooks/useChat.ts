@@ -81,13 +81,13 @@ export const useChat = (appSettings: AppSettings, setAppSettings: React.Dispatch
     
     const scrollHandler = useChatScroll({ messages, userScrolledUp });
     
-    const messageHandler = useMessageHandler({ 
-        appSettings, messages, isLoading, currentChatSettings, selectedFiles, 
-        setSelectedFiles, editingMessageId, setEditingMessageId, setAppFileError, 
-        aspectRatio, userScrolledUp, ttsMessageId, setTtsMessageId, activeSessionId, 
-        setActiveSessionId, setCommandedInput, activeJobs, loadingSessionIds, 
-        setLoadingSessionIds, updateAndPersistSessions, language, 
-        scrollContainerRef: scrollHandler.scrollContainerRef,
+    const messageHandler = useMessageHandler({
+        appSettings, messages, isLoading, currentChatSettings, selectedFiles,
+        setSelectedFiles, editingMessageId, setEditingMessageId, setAppFileError,
+        aspectRatio, userScrolledUp, ttsMessageId, setTtsMessageId, activeSessionId,
+        setActiveSessionId, setCommandedInput, activeJobs, loadingSessionIds,
+        setLoadingSessionIds, updateAndPersistSessions,
+        scrollContainerRef: scrollHandler.scrollContainerRef as React.RefObject<HTMLDivElement | null>,
         sessionKeyMapRef // Pass ref to message handler
     });
 
@@ -227,8 +227,8 @@ export const useChat = (appSettings: AppSettings, setAppSettings: React.Dispatch
         updateAndPersistGroups,
         
         // Scroll
-        scrollContainerRef: scrollHandler.scrollContainerRef,
-        setScrollContainerRef: scrollHandler.setScrollContainerRef, // New export
+        scrollContainerRef: scrollHandler.scrollContainerRef as React.RefObject<HTMLDivElement | null>,
+        setScrollContainerRef: scrollHandler.setScrollContainerRef,
         scrollNavVisibility: scrollHandler.scrollNavVisibility,
         onScrollContainerScroll: scrollHandler.handleScroll,
         scrollToPrevTurn: scrollHandler.scrollToPrevTurn,

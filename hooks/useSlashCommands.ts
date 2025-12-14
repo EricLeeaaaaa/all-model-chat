@@ -22,7 +22,7 @@ interface UseSlashCommandsProps {
   onSelectModel: (modelId: string) => void;
   onMessageSent: () => void;
   setIsHelpModalOpen: (isOpen: boolean) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   onEditLastUserMessage: () => void;
   onTogglePip: () => void;
   setInputText: Dispatch<SetStateAction<string>>;

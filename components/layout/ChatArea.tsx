@@ -46,8 +46,8 @@ export interface ChatAreaProps {
 
   // MessageList Props
   messages: ChatMessage[];
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
-  setScrollContainerRef: (node: HTMLDivElement | null) => void; // New prop
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+  setScrollContainerRef: (node: HTMLDivElement | null) => void;
   onScrollContainerScroll: () => void;
   onEditMessage: (messageId: string) => void;
   onDeleteMessage: (messageId: string) => void;
@@ -125,7 +125,7 @@ export interface ChatAreaProps {
   // Side Panel
   onOpenSidePanel: (content: SideViewContent) => void;
 
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const ChatArea: React.FC<ChatAreaProps> = (props) => {

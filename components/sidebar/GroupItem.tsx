@@ -21,7 +21,8 @@ interface GroupItemProps extends SessionItemPassedProps {
   setDragOverId: (id: string | null) => void;
   setEditingItem: (item: { type: 'session' | 'group', id: string, title: string } | null) => void;
   onDeleteGroup: (groupId: string) => void;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string) => string;
+  menuRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const GroupItem: React.FC<GroupItemProps> = (props) => {

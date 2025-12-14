@@ -71,18 +71,18 @@ export const Message: React.FC<MessageProps> = React.memo((props) => {
     }
 
     return (
-        <div 
+        <div
             className="relative message-container-animate"
             style={{ animationDelay: `${Math.min(messageIndex * 50, 500)}ms` }}
-            data-message-id={message.id} 
+            data-message-id={message.id}
             data-message-role={message.role}
         >
             <div className={`${messageContainerClasses}`}>
-                {message.role !== 'user' && <MessageActions {...props} isGrouped={isGrouped} />}
+                {message.role !== 'user' && <MessageActions {...props} isGrouped={!!isGrouped} />}
                 <div className={`${bubbleClasses}`}>
-                    <MessageContent {...props} />
+                    <MessageContent {...props} isGemini3={!!props.isGemini3} />
                 </div>
-                {message.role === 'user' && <MessageActions {...props} isGrouped={isGrouped} />}
+                {message.role === 'user' && <MessageActions {...props} isGrouped={!!isGrouped} />}
             </div>
         </div>
     );

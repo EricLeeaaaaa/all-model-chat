@@ -14,8 +14,8 @@ interface SessionItemProps {
   loadingSessionIds: Set<string>;
   generatingTitleSessionIds: Set<string>;
   newlyTitledSessionId: string | null;
-  editInputRef: React.RefObject<HTMLInputElement>;
-  menuRef: React.RefObject<HTMLDivElement>;
+  editInputRef: React.RefObject<HTMLInputElement | null>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   onSelectSession: (sessionId: string) => void;
   onTogglePinSession: (sessionId: string) => void;
   onDeleteSession: (sessionId: string) => void;
@@ -28,7 +28,7 @@ interface SessionItemProps {
   toggleMenu: (e: React.MouseEvent, id: string) => void;
   setActiveMenu: (id: string | null) => void;
   handleDragStart: (e: React.DragEvent, sessionId: string) => void;
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const SessionItem: React.FC<SessionItemProps> = (props) => {

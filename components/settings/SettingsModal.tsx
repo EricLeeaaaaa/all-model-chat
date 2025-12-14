@@ -215,7 +215,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     safetySettings={currentSettings.safetySettings} setSafetySettings={(v) => updateSetting('safetySettings', v)}
                     mediaResolution={currentSettings.mediaResolution} setMediaResolution={(v) => updateSetting('mediaResolution', v)}
                     availableModels={availableModels}
-                    t={t}
+                    t={t as (key: string) => string}
                     setAvailableModels={setAvailableModels}
                 />
                 </div>
@@ -268,7 +268,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 setApiProxyUrl={(val) => updateSetting('apiProxyUrl', val)}
                 useApiProxy={currentSettings.useApiProxy ?? false}
                 setUseApiProxy={(val) => updateSetting('useApiProxy', val)}
-                t={t}
+                t={t as (key: string) => string}
                 />
                 </div>
             )}
@@ -292,7 +292,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
                 </div>
             )}
-            {activeTab === 'shortcuts' && ( <div className={animClass}><ShortcutsSection t={t} /></div> )}
+            {activeTab === 'shortcuts' && ( <div className={animClass}><ShortcutsSection t={t as (key: string) => string} /></div> )}
         </div>
       );
   }

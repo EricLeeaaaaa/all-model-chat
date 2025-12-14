@@ -18,7 +18,7 @@ export interface ChatInputModalsProps {
   allCommandsForHelp: CommandInfo[];
   isProcessingFile: boolean;
   isLoading: boolean;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string) => string;
 }
 
 export const ChatInputModals: React.FC<ChatInputModalsProps> = ({

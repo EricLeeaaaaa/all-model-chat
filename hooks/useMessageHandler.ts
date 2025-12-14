@@ -29,7 +29,7 @@ interface MessageHandlerProps {
     loadingSessionIds: Set<string>;
     setLoadingSessionIds: Dispatch<SetStateAction<Set<string>>>;
     updateAndPersistSessions: SessionsUpdater;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     sessionKeyMapRef: React.MutableRefObject<Map<string, string>>;
 }
 

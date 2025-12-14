@@ -88,7 +88,7 @@ interface CodeBlockProps {
   className?: string;
   onOpenHtmlPreview: (html: string, options?: { initialTrueFullscreen?: boolean }) => void;
   expandCodeBlocksByDefault: boolean;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string) => string;
   onOpenSidePanel: (content: SideViewContent) => void;
 }
 
@@ -112,12 +112,12 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ children, className, onOpe
     // Find the code element (InlineCode or standard code tag)
     const codeElement = React.Children.toArray(children).find(
         (child): child is React.ReactElement => React.isValidElement(child)
-    );
+    ) as React.ReactElement | undefined;
 
     // Synchronously resolve content string using robust extraction
     let currentContent = '';
-    if (codeElement) {
-        currentContent = extractTextFromNode(codeElement.props.children);
+    if (codeElement && 'props' in codeElement) {
+        currentContent = extractTextFromNode((codeElement.props as any).children);
     } else {
         // Fallback if no code element found (direct pre content)
         currentContent = extractTextFromNode(children);
@@ -219,7 +219,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ children, className, onOpe
         }
     };
     
-    const langMatch = className?.match(/language-(\S+)/);
+    const langMatch = ((codeElement?.props as any)?.className || className)?.match(/language-(\S+)/);
     let language = langMatch ? langMatch[1] : 'txt';
 
     let mimeType = 'text/plain';
@@ -319,7 +319,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ children, className, onOpe
                     {codeElement ? (
                         React.cloneElement(codeElement as React.ReactElement, {
                             // Add !cursor-text to override the pointer cursor from InlineCode
-                            className: `${codeElement.props.className || ''} !p-4 !block font-mono text-[13px] sm:text-sm leading-relaxed !cursor-text`,
+                            className: `${(codeElement.props as any).className || ''} !p-4 !block font-mono text-[13px] sm:text-sm leading-relaxed !cursor-text`,
                             // Disable the click-to-copy behavior for code blocks
                             onClick: undefined,
                             // Remove the "Click to copy" tooltip

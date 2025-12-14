@@ -14,7 +14,7 @@ interface PreloadedMessagesModalProps {
   savedScenarios: SavedScenario[];
   onSaveAllScenarios: (scenarios: SavedScenario[]) => void;
   onLoadScenario: (scenario: SavedScenario) => void;
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const PreloadedMessagesModal: React.FC<PreloadedMessagesModalProps> = ({

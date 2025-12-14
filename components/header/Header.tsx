@@ -20,7 +20,7 @@ interface HeaderProps {
   isHistorySidebarOpen: boolean;
   onLoadCanvasPrompt: () => void;
   isCanvasPromptActive: boolean;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string, fallback?: string) => string;
   isKeyLocked: boolean;
   isPipSupported: boolean;
   isPipActive: boolean;

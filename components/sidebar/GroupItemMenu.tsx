@@ -4,10 +4,10 @@ import { SquarePen, Trash2 } from 'lucide-react';
 import { translations } from '../../utils/appUtils';
 
 interface GroupItemMenuProps {
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   onStartEdit: () => void;
   onDelete: () => void;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string) => string;
 }
 
 export const GroupItemMenu: React.FC<GroupItemMenuProps> = ({ menuRef, onStartEdit, onDelete, t }) => (

@@ -1,13 +1,24 @@
 
-import { GenerateContentResponse, Part, UsageMetadata, ChatHistoryItem } from "@google/genai";
+import { GenerateContentResponse, Part, UsageMetadata, Content, Candidate } from "@google/genai";
 import { ThoughtSupportingPart } from '../../types';
 import { logService } from "../logService";
 import { getConfiguredApiClient } from "./baseApi";
 
-/**
- * Shared helper to parse GenAI responses.
- * Extracts parts, separates thoughts, and merges metadata/citations from tool calls.
- */
+interface ExtendedCandidate extends Candidate {
+    toolCalls?: Array<{
+        functionCall?: {
+            name: string;
+            args: Record<string, any>;
+        }
+    }>;
+    urlContextMetadata?: any;
+    url_context_metadata?: any;
+    groundingMetadata?: any;
+    content?: {
+        parts?: Part[];
+    };
+}
+
 const processResponse = (response: GenerateContentResponse) => {
     let thoughtsText = "";
     const responseParts: Part[] = [];
@@ -27,11 +38,10 @@ const processResponse = (response: GenerateContentResponse) => {
         responseParts.push({ text: response.text });
     }
     
-    const candidate = response.candidates?.[0];
+    const candidate = response.candidates?.[0] as ExtendedCandidate | undefined;
     const groundingMetadata = candidate?.groundingMetadata;
     const finalMetadata: any = groundingMetadata ? { ...groundingMetadata } : {};
     
-    // @ts-ignore - Handle potential snake_case from raw API responses
     const urlContextMetadata = candidate?.urlContextMetadata || candidate?.url_context_metadata;
 
     const toolCalls = candidate?.toolCalls;
@@ -59,9 +69,9 @@ const processResponse = (response: GenerateContentResponse) => {
 };
 
 export const sendStatelessMessageStreamApi = async (
-    apiKey: string,
-    modelId: string,
-    history: ChatHistoryItem[],
+  apiKey: string,
+  modelId: string,
+  history: Content[],
     parts: Part[],
     config: any,
     abortSignal: AbortSignal,
@@ -97,7 +107,7 @@ export const sendStatelessMessageStreamApi = async (
             if (chunkResponse.usageMetadata) {
                 finalUsageMetadata = chunkResponse.usageMetadata;
             }
-            const candidate = chunkResponse.candidates?.[0];
+            const candidate = chunkResponse.candidates?.[0] as ExtendedCandidate | undefined;
             
             if (candidate) {
                 const metadataFromChunk = candidate.groundingMetadata;
@@ -105,7 +115,6 @@ export const sendStatelessMessageStreamApi = async (
                     finalGroundingMetadata = metadataFromChunk;
                 }
                 
-                // @ts-ignore
                 const urlMetadata = candidate.urlContextMetadata || candidate.url_context_metadata;
                 if (urlMetadata) {
                     finalUrlContextMetadata = urlMetadata;
@@ -150,9 +159,9 @@ export const sendStatelessMessageStreamApi = async (
 };
 
 export const sendStatelessMessageNonStreamApi = async (
-    apiKey: string,
-    modelId: string,
-    history: ChatHistoryItem[],
+  apiKey: string,
+  modelId: string,
+  history: Content[],
     parts: Part[],
     config: any,
     abortSignal: AbortSignal,

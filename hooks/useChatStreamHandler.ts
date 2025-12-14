@@ -93,7 +93,7 @@ export const useChatStreamHandler = ({
             // Record Token Usage Statistics
             if (usageMetadata) {
                 let promptTokens = usageMetadata.promptTokenCount || 0;
-                let completionTokens = usageMetadata.candidatesTokenCount || 0;
+                let completionTokens = (usageMetadata as any).candidatesTokenCount || 0;
                 const totalTokens = usageMetadata.totalTokenCount || 0;
 
                 // Fallback: If candidatesTokenCount is missing (0/undefined) but we have total and prompt, calculate it
@@ -130,8 +130,8 @@ export const useChatStreamHandler = ({
                             const promptTokens = isLastMessageOfRun ? (usageMetadata?.promptTokenCount) : undefined;
                             
                             // Prioritize explicit candidatesTokenCount (Output) if available
-                            let completionTokens = isLastMessageOfRun ? usageMetadata?.candidatesTokenCount : undefined;
-                            
+                            let completionTokens = isLastMessageOfRun ? (usageMetadata as any)?.candidatesTokenCount : undefined;
+
                             // Fallback: If candidatesTokenCount is missing but we have total and prompt, calculate it
                             if (completionTokens === undefined && promptTokens !== undefined && totalTokenCount > 0) {
                                 completionTokens = totalTokenCount - promptTokens;
@@ -178,7 +178,9 @@ export const useChatStreamHandler = ({
                 }
                 
                 if (appSettings.isCompletionNotificationEnabled && completedMessageForNotification && document.hidden) {
-                    const notificationBody = (completedMessageForNotification.content || "Media or tool response received").substring(0, 150) + (completedMessageForNotification.content && completedMessageForNotification.content.length > 150 ? '...' : '');
+                    const notification = completedMessageForNotification as ChatMessage;
+                    const content = notification.content || "Media or tool response received";
+                    const notificationBody = content.substring(0, 150) + (content.length > 150 ? '...' : '');
                     showNotification(
                         'Response Ready',
                         {
@@ -310,7 +312,7 @@ export const useChatStreamHandler = ({
 
                         const newFile: UploadedFile = {
                             id: generateUniqueId(),
-                            name,
+                            name: fileName,
                             type: mimeType,
                             size: data.length,
                             dataUrl: dataUrl,

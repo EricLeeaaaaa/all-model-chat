@@ -7,6 +7,5 @@ export * from './types/api';
 
 // Re-export ThemeColors from constants as it was in the original file
 import { ThemeColors, Theme } from './constants/themeConstants';
-import { ChatHistoryItem } from "@google/genai";
 
-export type { ThemeColors, Theme, ChatHistoryItem };
+export type { ThemeColors, Theme };

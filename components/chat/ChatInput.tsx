@@ -37,7 +37,7 @@ export interface ChatInputProps {
   onTranscribeAudio: (file: File) => Promise<string | null>;
   isProcessingFile: boolean; 
   fileError: string | null;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string, fallback?: string) => string;
   isImagenModel?: boolean;
   isImageEditModel?: boolean;
   aspectRatio?: string;

@@ -11,7 +11,7 @@ interface SidebarActionsProps {
   searchQuery: string;
   setIsSearching: (isSearching: boolean) => void;
   setSearchQuery: (query: string) => void;
-  t: (key: keyof typeof translations) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const SidebarActions: React.FC<SidebarActionsProps> = ({ onNewChat, onAddNewGroup, isSearching, searchQuery, setIsSearching, setSearchQuery, t }) => (

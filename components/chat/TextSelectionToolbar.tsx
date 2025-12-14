@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 
 interface TextSelectionToolbarProps {
     onQuote: (text: string) => void;
-    containerRef: React.RefObject<HTMLElement>;
+    containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const TextSelectionToolbar: React.FC<TextSelectionToolbarProps> = ({ onQuote, containerRef }) => {

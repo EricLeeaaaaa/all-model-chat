@@ -4,8 +4,8 @@ import { useWindowContext } from '../contexts/WindowContext';
 
 type Handler = (event: MouseEvent | TouchEvent) => void;
 
-export const useClickOutside = <T extends HTMLElement = HTMLElement>(
-  ref: RefObject<T>,
+export const useClickOutside = <T extends HTMLElement>(
+  ref: RefObject<T | null>,
   handler: Handler,
   enabled: boolean = true
 ) => {

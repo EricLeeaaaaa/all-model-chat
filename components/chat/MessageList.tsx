@@ -18,7 +18,7 @@ import { TextSelectionToolbar } from './TextSelectionToolbar';
 export interface MessageListProps {
   messages: ChatMessage[];
   sessionTitle?: string;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   setScrollContainerRef: (node: HTMLDivElement | null) => void;
   onScrollContainerScroll: () => void;
   onEditMessage: (messageId: string) => void;
@@ -38,7 +38,7 @@ export interface MessageListProps {
   onFollowUpSuggestionClick?: (suggestion: string) => void;
   onTextToSpeech: (messageId: string, text: string) => void;
   ttsMessageId: string | null;
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
   language: 'en' | 'zh';
   scrollNavVisibility: { up: boolean, down: boolean };
   onScrollToPrevTurn: () => void;

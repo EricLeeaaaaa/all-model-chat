@@ -6,13 +6,13 @@ import { translations } from '../../utils/appUtils';
 
 interface SessionItemMenuProps {
   session: SavedChatSession;
-  menuRef: React.RefObject<HTMLDivElement>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   onStartEdit: () => void;
   onTogglePin: () => void;
   onDuplicate: () => void;
   onExport: () => void;
   onDelete: () => void;
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const SessionItemMenu: React.FC<SessionItemMenuProps> = ({ session, menuRef, onStartEdit, onTogglePin, onDuplicate, onExport, onDelete, t }) => (

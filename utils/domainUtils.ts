@@ -1,9 +1,10 @@
 
-import { ChatMessage, ContentPart, UploadedFile, ChatHistoryItem, SavedChatSession, ModelOption, ChatSettings } from '../types';
+import { ChatMessage, ContentPart, UploadedFile, SavedChatSession, ModelOption, ChatSettings } from '../types';
 import { SUPPORTED_IMAGE_MIME_TYPES, SUPPORTED_TEXT_MIME_TYPES, TEXT_BASED_EXTENSIONS, MIME_TO_EXTENSION_MAP } from '../constants/fileConstants';
 import { logService } from '../services/logService';
 import { TAB_CYCLE_MODELS, STATIC_TTS_MODELS, STATIC_IMAGEN_MODELS, GEMINI_3_RO_MODELS } from '../constants/appConstants';
 import { MediaResolution } from '../types/settings';
+import { Content, PartMediaResolutionLevel } from '@google/genai';
 
 export const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -243,7 +244,7 @@ export const buildContentParts = async (
     if (part && isGemini3 && effectiveResolution && effectiveResolution !== MediaResolution.MEDIA_RESOLUTION_UNSPECIFIED && !isTextLike && !isYoutube) {
         // Only apply if it has inlineData or fileData
         if (part.inlineData || part.fileData) {
-            part.mediaResolution = { level: effectiveResolution };
+            part.mediaResolution = { level: effectiveResolution as unknown as PartMediaResolutionLevel };
         }
     }
     
@@ -266,7 +267,7 @@ export const buildContentParts = async (
   return { contentParts: contentPartsResult, enrichedFiles };
 };
 
-export const createChatHistoryForApi = async (msgs: ChatMessage[]): Promise<ChatHistoryItem[]> => {
+export const createChatHistoryForApi = async (msgs: ChatMessage[]): Promise<Content[]> => {
     const historyItemsPromises = msgs
       .filter(msg => msg.role === 'user' || msg.role === 'model')
       .map(async (msg) => {

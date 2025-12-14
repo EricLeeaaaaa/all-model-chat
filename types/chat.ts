@@ -1,5 +1,6 @@
 
 import { ChatSettings, MediaResolution } from './settings';
+import { Part, PartMediaResolution } from '@google/genai';
 
 export interface VideoMetadata {
   startOffset?: string;
@@ -61,20 +62,12 @@ export interface ChatMessage {
   thoughtSignatures?: string[]; // Added for Gemini 3 Pro reasoning continuity
 }
 
-// Defines the structure for a part of a content message
-export interface ContentPart {
-  text?: string;
-  inlineData?: {
-    mimeType: string;
-    data: string;
-  };
-  fileData?: { // Added for referencing uploaded files like PDFs
-    mimeType?: string; // Optional for YouTube URLs
-    fileUri: string;
-  };
+export interface ContentPart extends Part {
   videoMetadata?: VideoMetadata;
-  thoughtSignature?: string; // Added to pass back to API
-  mediaResolution?: { level: string }; // Added for Gemini 3 per-part resolution
+  thoughtSignature?: string;
+  mediaResolution?: PartMediaResolution;
+  // SDK 'Part' already includes text, inlineData, fileData, etc.
+  // We only add our custom fields here.
 }
 
 export interface ChatGroup {
@@ -143,7 +136,7 @@ export interface ChatInputToolbarProps {
   onCancelAddUrl: () => void;
   isAddingByUrl: boolean;
   isLoading: boolean;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
   generateQuadImages?: boolean;
   onToggleQuadImages?: () => void;
   supportedAspectRatios?: string[];
@@ -172,7 +165,7 @@ export interface ChatInputActionsProps {
   onCancelEdit: () => void;
   canSend: boolean;
   isWaitingForUpload: boolean;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
   onCancelRecording: () => void;
   onTranslate: () => void;
   isTranslating: boolean;

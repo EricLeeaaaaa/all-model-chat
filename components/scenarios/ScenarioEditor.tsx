@@ -9,7 +9,7 @@ interface ScenarioEditorProps {
     initialScenario: SavedScenario | null;
     onSave: (scenario: SavedScenario) => void;
     onCancel: () => void;
-    t: (key: keyof typeof translations, fallback?: string) => string;
+    t: (key: string, fallback?: string) => string;
     readOnly?: boolean;
 }
 

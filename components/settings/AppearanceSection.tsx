@@ -79,7 +79,7 @@ export const AppearanceSection: React.FC<AppearanceSectionProps> = ({
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(languageDropdownRef, () => setIsLanguageDropdownOpen(false), isLanguageDropdownOpen);
+  useClickOutside(languageDropdownRef as React.RefObject<HTMLElement>, () => setIsLanguageDropdownOpen(false), isLanguageDropdownOpen);
 
   const themeOptions: { id: 'system' | 'dark' | 'light'; labelKey: keyof typeof translations; icon: React.ReactNode }[] = [
     { id: 'system', labelKey: 'settingsThemeSystem', icon: <IconThemeSystem size={16} strokeWidth={1.5} /> },

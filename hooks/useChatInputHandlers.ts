@@ -46,11 +46,11 @@ interface UseChatInputHandlersProps {
     setShowAddByIdInput: React.Dispatch<React.SetStateAction<boolean>>;
     
     // Refs
-    textareaRef: React.RefObject<HTMLTextAreaElement>;
-    fileInputRef: React.RefObject<HTMLInputElement>;
-    imageInputRef: React.RefObject<HTMLInputElement>;
-    folderInputRef: React.RefObject<HTMLInputElement>;
-    zipInputRef: React.RefObject<HTMLInputElement>;
+    textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+    fileInputRef: React.RefObject<HTMLInputElement | null>;
+    imageInputRef: React.RefObject<HTMLInputElement | null>;
+    folderInputRef: React.RefObject<HTMLInputElement | null>;
+    zipInputRef: React.RefObject<HTMLInputElement | null>;
     justInitiatedFileOpRef: React.MutableRefObject<boolean>;
     isComposingRef: React.MutableRefObject<boolean>;
     

@@ -58,13 +58,13 @@ export const TokenCountModal: React.FC<TokenCountModalProps> = ({
             // Build parts (this handles file reading/base64 conversion)
             // Pass mediaResolution to ensure token count reflects the resolution setting
             const { contentParts } = await buildContentParts(txt, fls, modelId, appSettings.mediaResolution);
-            
+
             if (contentParts.length === 0) {
                 setTokenCount(0);
                 return;
             }
 
-            const count = await geminiServiceInstance.countTokens(keyResult.key, modelId, contentParts);
+            const count = await geminiServiceInstance.countTokens(keyResult.key, modelId, contentParts as any[]);
             setTokenCount(count);
         } catch (err) {
             console.error("Token calculation failed", err);

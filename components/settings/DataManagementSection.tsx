@@ -144,7 +144,7 @@ export const DataManagementSection: React.FC<DataManagementSectionProps> = ({
     </div>
   );
 
-  function handleFileImport(ref: React.RefObject<HTMLInputElement>, handler: (file: File) => void) {
+  function handleFileImport(ref: React.RefObject<HTMLInputElement | null>, handler: (file: File) => void) {
     const file = ref.current?.files?.[0];
     if (file) handler(file);
     if (ref.current) ref.current.value = "";

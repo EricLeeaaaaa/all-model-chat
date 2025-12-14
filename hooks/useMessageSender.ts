@@ -28,7 +28,7 @@ interface MessageSenderProps {
     activeJobs: React.MutableRefObject<Map<string, AbortController>>;
     setLoadingSessionIds: Dispatch<SetStateAction<Set<string>>>;
     updateAndPersistSessions: SessionsUpdater;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     sessionKeyMapRef: React.MutableRefObject<Map<string, string>>;
 }
 
@@ -72,8 +72,6 @@ export const useMessageSender = (props: MessageSenderProps) => {
         const activeModelId = sessionToUpdate.modelId;
         const isTtsModel = activeModelId.includes('-tts');
         const isImagenModel = activeModelId.includes('imagen');
-        // Exclude gemini-3-pro-image-preview from isImageEditModel to force standard chat flow, 
-        // unless Quad Images are enabled which we handle via edit route
         const isImageEditModel = (activeModelId.includes('image-preview') || activeModelId.includes('gemini-2.5-flash-image')) && !activeModelId.includes('gemini-3-pro');
         const isGemini3Image = activeModelId === 'gemini-3-pro-image-preview';
 
@@ -250,7 +248,7 @@ export const useMessageSender = (props: MessageSenderProps) => {
                 streamOnError,
                 streamOnComplete
             );
-        } else { 
+        } else {
             await geminiServiceInstance.sendMessageNonStream(
                 keyToUse,
                 activeModelId,

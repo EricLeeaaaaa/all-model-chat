@@ -42,7 +42,7 @@ export interface AppModalsProps {
   setIsLogViewerOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
   currentChatSettings: ChatSettings;
 
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
   setAvailableModels: (models: ModelOption[]) => void;
 }
 

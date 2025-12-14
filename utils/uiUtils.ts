@@ -21,7 +21,7 @@ import {
   FileCode2,
   AlertTriangle
 } from 'lucide-react';
-import { APP_LOGO_URI } from '../constants/appConstants'; // Updated import
+import { APP_LOGO_URI } from '../constants/appConstants';
 
 export const generateThemeCssVariables = (colors: ThemeColors): string => {
   let css = ':root {\n';
@@ -154,7 +154,7 @@ export const extractTextFromNode = (node: React.ReactNode): string => {
     if (!node) return '';
     if (typeof node === 'string' || typeof node === 'number') return String(node);
     if (Array.isArray(node)) return node.map(extractTextFromNode).join('');
-    if (React.isValidElement(node) && node.props && 'children' in node.props) return extractTextFromNode((node.props as any).children);
+    if (React.isValidElement(node) && node.props && 'children' in (node.props as any)) return extractTextFromNode((node.props as any).children);
     return '';
 };
 

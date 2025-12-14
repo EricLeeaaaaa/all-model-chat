@@ -32,7 +32,8 @@ interface MessageContentProps {
     isGemini3?: boolean;
 }
 
-export const MessageContent: React.FC<MessageContentProps> = React.memo(({ message, onImageClick, onOpenHtmlPreview, showThoughts, baseFontSize, expandCodeBlocksByDefault, isMermaidRenderingEnabled, isGraphvizRenderingEnabled, onSuggestionClick, t, appSettings, themeId, onOpenSidePanel, onConfigureFile, isGemini3 }) => {
+export const MessageContent: React.FC<MessageContentProps> = React.memo((props) => {
+    const { message, onImageClick, onOpenHtmlPreview, showThoughts, baseFontSize, expandCodeBlocksByDefault, isMermaidRenderingEnabled, isGraphvizRenderingEnabled, onSuggestionClick, t, appSettings, themeId, onOpenSidePanel, onConfigureFile, isGemini3 } = props;
     const { content, files, isLoading, thoughts, generationStartTime, audioSrc, groundingMetadata, urlContextMetadata, suggestions, isGeneratingSuggestions } = message;
     
     const showPrimaryThinkingIndicator = isLoading && !content && !audioSrc && (!showThoughts || !thoughts);
@@ -226,7 +227,7 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
                             <div className="prose prose-sm max-w-none dark:prose-invert text-[var(--theme-text-secondary)] leading-relaxed markdown-body thought-process-content opacity-90">
                                 <MarkdownRenderer
                                     content={isShowingTranslation && translatedThoughts ? translatedThoughts : thoughts}
-                                    isLoading={isLoading}
+                                    isLoading={!!isLoading}
                                     onImageClick={onImageClick}
                                     onOpenHtmlPreview={onOpenHtmlPreview}
                                     expandCodeBlocksByDefault={expandCodeBlocksByDefault}
@@ -253,25 +254,25 @@ export const MessageContent: React.FC<MessageContentProps> = React.memo(({ messa
             )}
 
             {(content && (groundingMetadata || urlContextMetadata)) ? (
-              <GroundedResponse 
-                text={content} 
-                metadata={groundingMetadata} 
+              <GroundedResponse
+                text={content}
+                metadata={groundingMetadata}
                 urlContextMetadata={urlContextMetadata}
-                isLoading={isLoading} 
-                onOpenHtmlPreview={onOpenHtmlPreview} 
-                expandCodeBlocksByDefault={expandCodeBlocksByDefault} 
-                onImageClick={onImageClick} 
-                isMermaidRenderingEnabled={isMermaidRenderingEnabled} 
-                isGraphvizRenderingEnabled={isGraphvizRenderingEnabled} 
-                t={t} 
-                themeId={themeId} 
+                isLoading={!!isLoading}
+                onOpenHtmlPreview={onOpenHtmlPreview}
+                expandCodeBlocksByDefault={expandCodeBlocksByDefault}
+                onImageClick={onImageClick}
+                isMermaidRenderingEnabled={isMermaidRenderingEnabled}
+                isGraphvizRenderingEnabled={isGraphvizRenderingEnabled}
+                t={t}
+                themeId={themeId}
                 onOpenSidePanel={onOpenSidePanel}
               />
             ) : content && (
                 <div className="markdown-body" style={{ fontSize: `${baseFontSize}px` }}> 
                     <MarkdownRenderer
                         content={content}
-                        isLoading={isLoading}
+                        isLoading={!!isLoading}
                         onImageClick={onImageClick}
                         onOpenHtmlPreview={onOpenHtmlPreview}
                         expandCodeBlocksByDefault={expandCodeBlocksByDefault}

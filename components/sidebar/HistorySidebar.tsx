@@ -34,7 +34,7 @@ export interface HistorySidebarProps {
   onOpenSettingsModal: () => void;
   onOpenScenariosModal: () => void;
   themeColors: ThemeColors;
-  t: (key: keyof typeof translations, fallback?: string) => string;
+  t: (key: string, fallback?: string) => string;
   language: 'en' | 'zh';
   themeId: string;
 }
@@ -53,8 +53,8 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = (props) => {
   const [editingItem, setEditingItem] = useState<{ type: 'session' | 'group', id: string, title: string } | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const editInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const editInputRef = useRef<HTMLInputElement | null>(null);
   const [newlyTitledSessionId, setNewlyTitledSessionId] = useState<string | null>(null);
   const prevGeneratingTitleSessionIdsRef = useRef<Set<string>>(new Set());
   
@@ -300,18 +300,16 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = (props) => {
                     className={`rounded-lg transition-colors min-h-[50px] ${dragOverId === 'all-conversations' ? 'bg-[var(--theme-bg-accent)] bg-opacity-10 ring-2 ring-[var(--theme-bg-accent)] ring-inset ring-opacity-50' : ''}`}
                 >
                     {sortedGroups.map(group => (
-                    <GroupItem 
+                    <GroupItem
                         key={group.id}
                         group={group}
                         sessions={sessionsByGroupId.get(group.id) || []}
-                        editingItem={editingItem}
                         dragOverId={dragOverId}
                         onToggleGroupExpansion={onToggleGroupExpansion}
                         handleGroupStartEdit={(item) => handleStartEdit('group', item)}
                         handleDrop={handleDrop}
                         handleDragOver={handleDragOver}
                         setDragOverId={setDragOverId}
-                        setEditingItem={setEditingItem}
                         onDeleteGroup={onDeleteGroup}
                         {...sessionItemSharedProps}
                     />

@@ -28,9 +28,9 @@ interface DataManagementProps {
     updateAndPersistGroups: GroupsUpdater;
     savedScenarios: SavedScenario[];
     handleSaveAllScenarios: (scenarios: SavedScenario[]) => void;
-    t: (key: string) => string;
+    t: (key: string, fallback?: string) => string;
     activeChat: SavedChatSession | undefined;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     currentTheme: Theme;
     language: 'en' | 'zh';
 }

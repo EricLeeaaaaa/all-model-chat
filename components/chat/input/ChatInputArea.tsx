@@ -47,7 +47,7 @@ export interface ChatInputAreaProps {
         onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
         onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
         onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-        textareaRef: React.RefObject<HTMLTextAreaElement>;
+        textareaRef: React.RefObject<HTMLTextAreaElement | null>;
         placeholder: string;
         disabled: boolean;
         onCompositionStart: () => void;
@@ -67,11 +67,11 @@ export interface ChatInputAreaProps {
         isConverting: boolean;
     };
     fileInputRefs: {
-        fileInputRef: React.RefObject<HTMLInputElement>;
-        imageInputRef: React.RefObject<HTMLInputElement>;
-        folderInputRef: React.RefObject<HTMLInputElement>;
-        zipInputRef: React.RefObject<HTMLInputElement>;
-        cameraInputRef: React.RefObject<HTMLInputElement>;
+        fileInputRef: React.RefObject<HTMLInputElement | null>;
+        imageInputRef: React.RefObject<HTMLInputElement | null>;
+        folderInputRef: React.RefObject<HTMLInputElement | null>;
+        zipInputRef: React.RefObject<HTMLInputElement | null>;
+        cameraInputRef: React.RefObject<HTMLInputElement | null>;
         handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
         handleFolderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
         handleZipChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -84,7 +84,7 @@ export interface ChatInputAreaProps {
         onSuggestionClick: (suggestion: string) => void;
         onOrganizeInfoClick: (suggestion: string) => void;
     };
-    t: (key: keyof typeof translations) => string;
+    t: (key: string, fallback?: string) => string;
 }
 
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({

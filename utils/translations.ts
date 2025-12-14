@@ -1,4 +1,3 @@
-// This file is the new entry point for translations, aggregating from modularized files.
 
 import { appTranslations } from './translations/app';
 import { headerTranslations } from './translations/header';
@@ -20,7 +19,7 @@ export const translations = {
     ...commonTranslations,
 };
 
-export const getTranslator = (lang: 'en' | 'zh') => (key: keyof typeof translations, fallback?: string): string => {
+export const getTranslator = (lang: 'en' | 'zh') => (key: string, fallback?: string): string => {
     // The type assertion is safe because we've merged all the objects.
     const translationSet = translations as any;
     return translationSet[key]?.[lang] ?? fallback ?? translationSet[key]?.['en'] ?? key;
